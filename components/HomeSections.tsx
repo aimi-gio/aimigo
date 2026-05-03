@@ -14,14 +14,6 @@ const TYPE_SLUG: Record<string, string> = {
   '靈感收藏': 'inspo',
 }
 
-const ExtIcon = () => (
-  <svg className="ext-icon" viewBox="0 0 12 12" fill="none" aria-hidden>
-    <path d="M6.5 1.5H10.5V5.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M10.5 1.5L5.5 6.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
-    <path d="M5 2.5H2C1.72 2.5 1.5 2.72 1.5 3V10C1.5 10.28 1.72 10.5 2 10.5H9C9.28 10.5 9.5 10.28 9.5 10V7" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
-  </svg>
-)
-
 // CTA format helpers
 function isCopyCode(cta: string) { return cta.startsWith('複製:') }
 function extractCode(cta: string) { return cta.replace(/^複製:/, '') }
@@ -172,31 +164,25 @@ export default function HomeSections({ cards, initialTab }: { cards: NotionCard[
         <div id="section-tool">
           {showLabel && <div className="section-label">好用工具</div>}
           <div className="grid">
-            {toolCards.map((card) => (
-              <div key={card.id} className="card card-tool">
-                <CardImg
-                  cover={card.cover}
-                  icon={card.icon}
-                  bg="var(--color-tool-light)"
-                  fallback="🔧"
-                />
-                <div className="card-body">
-                  <div className="card-title">{card.name}</div>
-                  <div className="card-desc">{card.desc}</div>
-                  {isCopyCode(card.cta) ? (
-                    <CopyButton label="複製邀請碼" code={extractCode(card.cta)} />
-                  ) : isExternalUrl(card.cta) ? (
-                    <a href={card.cta} target="_blank" rel="noopener noreferrer" className="cta-btn cta-btn-tool">
-                      查看更多 <ExtIcon />
-                    </a>
-                  ) : (
-                    <Link href={internalHref(card)} className="cta-btn cta-btn-tool">
-                      {card.cta || '查看說明'}
-                    </Link>
-                  )}
-                </div>
-              </div>
-            ))}
+            {toolCards.map((card) => {
+              const copy = isCopyCode(card.cta)
+              const inner = (
+                <>
+                  <CardImg cover={card.cover} icon={card.icon} bg="var(--color-tool-light)" fallback="🔧" />
+                  <div className="card-body">
+                    <div className="card-title">{card.name}</div>
+                    <div className="card-desc">{card.desc}</div>
+                    {copy
+                      ? <CopyButton label="複製邀請碼" code={extractCode(card.cta)} />
+                      : <div className="cta-btn cta-btn-tool">查看更多</div>
+                    }
+                  </div>
+                </>
+              )
+              return copy
+                ? <div key={card.id} className="card card-tool">{inner}</div>
+                : <Link key={card.id} href={internalHref(card)} className="card card-tool">{inner}</Link>
+            })}
           </div>
         </div>
       )}
@@ -236,52 +222,18 @@ export default function HomeSections({ cards, initialTab }: { cards: NotionCard[
         <div id="section-inspo">
           {showLabel && <div className="section-label">靈感收藏</div>}
           <div className="grid">
-            {inspoCards.map((card) => {
-              const imgEl = (
-                <CardImg
-                  cover={card.cover}
-                  icon={card.icon}
-                  bg="var(--color-inspo-light)"
-                  fallback="✨"
-                />
-              )
-              const bodyEl = (
+            {inspoCards.map((card) => (
+              <Link key={card.id} href={internalHref(card)} className="card card-inspo">
+                <CardImg cover={card.cover} icon={card.icon} bg="var(--color-inspo-light)" fallback="✨" />
                 <div className="card-body">
                   <div className="card-title">{card.name}</div>
                   <div className="card-desc">{card.desc}</div>
                   <div className="card-footer">
-                    <div className="cta-btn cta-btn-inspo">
-                      {isExternalUrl(card.cta) ? '查看更多' : '閱讀更多'}
-                    </div>
+                    <div className="cta-btn cta-btn-inspo">查看更多</div>
                   </div>
                 </div>
-              )
-
-              // External URL: div card, only button is clickable
-              if (isExternalUrl(card.cta)) {
-                return (
-                  <div key={card.id} className="card card-inspo">
-                    {imgEl}
-                    <div className="card-body">
-                      <div className="card-title">{card.name}</div>
-                      <div className="card-desc">{card.desc}</div>
-                      <div className="card-footer">
-                        <a href={card.cta} target="_blank" rel="noopener noreferrer" className="cta-btn cta-btn-inspo">
-                          查看更多 <ExtIcon />
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-                )
-              }
-
-              // Empty CTA or internal: whole card is a link
-              return (
-                <Link key={card.id} href={internalHref(card)} className="card card-inspo">
-                  {imgEl}{bodyEl}
-                </Link>
-              )
-            })}
+              </Link>
+            ))}
           </div>
         </div>
       )}
