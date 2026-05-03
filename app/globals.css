@@ -75,7 +75,6 @@ a { text-decoration: none; color: inherit; }
   padding: 2rem 2rem 1.5rem;
 }
 .home-hero-inner {
-  max-width: 900px; margin: 0 auto;
   display: flex; align-items: flex-start; gap: 1.5rem;
 }
 .avatar {
@@ -131,10 +130,10 @@ a { text-decoration: none; color: inherit; }
 .btn-ig-hero:hover { background-position: 100% 50%; opacity: 0.95; }
 
 /* ── Content Container ──────────────────────────────────────── */
-.content { max-width: 900px; margin: 0 auto; padding: 1.75rem 2rem 0; }
+.content { padding: 1.75rem 2rem 0; }
 
 /* ── Main (homepage) ────────────────────────────────────────── */
-.main { max-width: 900px; margin: 0 auto; padding: 1.5rem 2rem 0; }
+.main { padding: 1.5rem 2rem 0; }
 
 /* ── Toolbar / Filter Pills ─────────────────────────────────── */
 .toolbar {
@@ -318,7 +317,7 @@ a { text-decoration: none; color: inherit; }
 }
 
 /* ── Bottom CTA ─────────────────────────────────────────────── */
-.bottom-cta-wrap { max-width: 900px; margin: 0 auto; padding: 0 2rem 2rem; }
+.bottom-cta-wrap { padding: 0 2rem 2rem; }
 .bottom-cta {
   display: flex; align-items: center; justify-content: center; gap: 8px;
   position: relative; overflow: hidden;
@@ -394,7 +393,7 @@ a { text-decoration: none; color: inherit; }
 
 /* ── Footer ─────────────────────────────────────────────────── */
 .footer { background: var(--color-primary); color: #fff; padding: 2rem; margin-top: auto; }
-.footer-inner { max-width: 900px; margin: 0 auto; }
+.footer-inner { max-width: 100%; }
 .footer-top {
   display: flex; align-items: flex-start; justify-content: space-between;
   gap: 2rem; margin-bottom: 1.5rem; padding-bottom: 1.5rem;
@@ -761,4 +760,4 @@ a { text-decoration: none; color: inherit; }
 .media-btn:hover { opacity: 0.8; }
 
 /* ── Text after bottom CTA ──────────────────────────────────── */
-.text-link-wrap { max-width: 900px; margin: 0 auto; padding: 0.75rem 2rem 2rem; text-align: center; }
+.text-link-wrap { padding: 0.75rem 2rem 2rem; text-align: center; }
