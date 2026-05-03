@@ -22,32 +22,27 @@ const ExtIcon = () => (
   </svg>
 )
 
-function isInviteCode(cta: string) {
-  return /^[A-Z0-9]{6,10}$/.test(cta)
-}
-function isExternalUrl(cta: string) {
-  return cta.startsWith('http')
-}
-function isIgLimited(cta: string) {
-  return cta.includes('領取 Notion 小書')
-}
-function isComingSoon(cta: string) {
-  return cta === '佛系整理中'
-}
-
-// Extract YYYYMM from trip names like "202603 土耳其", "2023-12 香港", "2025 沖繩"
-function tripDateKey(name: string): number {
-  let m = name.match(/^(\d{6})/)
-  if (m) return parseInt(m[1])
-  m = name.match(/^(\d{4})-(\d{1,2})/)
-  if (m) return parseInt(m[1]) * 100 + parseInt(m[2])
-  m = name.match(/^(\d{4})/)
-  if (m) return parseInt(m[1]) * 100
-  return 0
-}
+// CTA format helpers
+function isCopyCode(cta: string) { return cta.startsWith('複製:') }
+function extractCode(cta: string) { return cta.replace(/^複製:/, '') }
+function isExternalUrl(cta: string) { return cta.startsWith('http') }
+function isIgLimited(cta: string) { return cta.startsWith('ig:') }
+function isComingSoon(cta: string) { return cta === '佛系整理中' }
 
 function internalHref(card: NotionCard) {
   return `/${TYPE_SLUG[card.type]}/${card.id}`
+}
+
+// Cover image with emoji fallback
+function CardImg({ cover, icon, bg, fallback }: { cover: string; icon: string; bg: string; fallback: string }) {
+  return (
+    <div className="card-img">
+      {cover
+        ? <img src={cover} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+        : <div className="card-img-bg" style={{ background: bg }}>{icon || fallback}</div>
+      }
+    </div>
+  )
 }
 
 const VALID_FILTERS: Filter[] = ['all', 'trip', 'tool', 'template', 'inspo']
@@ -57,9 +52,8 @@ export default function HomeSections({ cards, initialTab }: { cards: NotionCard[
     VALID_FILTERS.includes(initialTab as Filter) ? (initialTab as Filter) : 'all'
   )
 
-  const tripCards = cards
-    .filter(c => c.type === '旅遊行程')
-    .sort((a, b) => tripDateKey(b.name) - tripDateKey(a.name))
+  // Preserve Notion database drag-and-drop order — no client-side sorting
+  const tripCards = cards.filter(c => c.type === '旅遊行程')
   const toolCards = cards.filter(c => c.type === '好用工具')
   const templateCards = cards.filter(c => c.type === '通用模板')
   const inspoCards = cards.filter(c => c.type === '靈感收藏')
@@ -106,11 +100,20 @@ export default function HomeSections({ cards, initialTab }: { cards: NotionCard[
           {showLabel && <div className="section-label">旅遊行程</div>}
           <div className="grid">
             {tripCards.map((card) => {
-              const isIg = isIgLimited(card.cta) || card.cta.includes('Instagram')
+              const isIg = isIgLimited(card.cta)
               const disabled = isComingSoon(card.cta)
               const chips = card.tags.filter(t => !['IG 粉絲限定', '行程分享'].includes(t))
 
-              const cardEl = (
+              const imgEl = (
+                <CardImg
+                  cover={card.cover}
+                  icon={card.icon}
+                  bg="var(--color-trip-light)"
+                  fallback="✈️"
+                />
+              )
+
+              const bodyEl = (
                 <div className="card-body">
                   <div className="card-title">{card.name}</div>
                   <div className="card-meta">{card.dateRange}{card.persons ? ` · ${card.persons}` : ''}</div>
@@ -127,24 +130,16 @@ export default function HomeSections({ cards, initialTab }: { cards: NotionCard[
                 </div>
               )
 
-              const imgEl = (
-                <div className="card-img">
-                  <div className="card-img-bg" style={{ background: 'var(--color-trip-light)' }}>
-                    {card.icon}
-                  </div>
-                </div>
-              )
-
               if (disabled) {
                 return (
                   <div key={card.id} className="card card-trip card-disabled">
-                    {imgEl}{cardEl}
+                    {imgEl}{bodyEl}
                   </div>
                 )
               }
               return (
                 <Link key={card.id} href={internalHref(card)} className={`card card-trip${isIg ? ' ig-card' : ''}`}>
-                  {imgEl}{cardEl}
+                  {imgEl}{bodyEl}
                 </Link>
               )
             })}
@@ -168,16 +163,17 @@ export default function HomeSections({ cards, initialTab }: { cards: NotionCard[
           <div className="grid">
             {toolCards.map((card) => (
               <div key={card.id} className="card card-tool">
-                <div className="card-img">
-                  <div className="card-img-bg" style={{ background: 'var(--color-tool-light)' }}>
-                    {card.icon || '🔧'}
-                  </div>
-                </div>
+                <CardImg
+                  cover={card.cover}
+                  icon={card.icon}
+                  bg="var(--color-tool-light)"
+                  fallback="🔧"
+                />
                 <div className="card-body">
                   <div className="card-title">{card.name}</div>
                   <div className="card-desc">{card.desc}</div>
-                  {isInviteCode(card.cta) ? (
-                    <CopyButton label="複製邀請碼" code={card.cta} />
+                  {isCopyCode(card.cta) ? (
+                    <CopyButton label="複製邀請碼" code={extractCode(card.cta)} />
                   ) : isExternalUrl(card.cta) ? (
                     <a href={card.cta} target="_blank" rel="noopener noreferrer" className="cta-btn cta-btn-tool">
                       查看更多 <ExtIcon />
@@ -203,11 +199,12 @@ export default function HomeSections({ cards, initialTab }: { cards: NotionCard[
           <div className="grid">
             {templateCards.map((card) => (
               <Link key={card.id} href={internalHref(card)} className="card card-template">
-                <div className="card-img">
-                  <div className="card-img-bg" style={{ background: 'var(--color-template-light)' }}>
-                    {card.icon || '📋'}
-                  </div>
-                </div>
+                <CardImg
+                  cover={card.cover}
+                  icon={card.icon}
+                  bg="var(--color-template-light)"
+                  fallback="📋"
+                />
                 <div className="card-body">
                   <div className="card-title">{card.name}</div>
                   <div className="card-desc">{card.desc}</div>
@@ -229,35 +226,48 @@ export default function HomeSections({ cards, initialTab }: { cards: NotionCard[
           {showLabel && <div className="section-label">靈感收藏</div>}
           <div className="grid">
             {inspoCards.map((card) => {
-              const isExt = isExternalUrl(card.cta)
-              const commonInner = (
-                <>
-                  <div className="card-img">
-                    <div className="card-img-bg" style={{ background: 'var(--color-inspo-light)' }}>
-                      {card.icon || '✨'}
+              const imgEl = (
+                <CardImg
+                  cover={card.cover}
+                  icon={card.icon}
+                  bg="var(--color-inspo-light)"
+                  fallback="✨"
+                />
+              )
+              const bodyEl = (
+                <div className="card-body">
+                  <div className="card-title">{card.name}</div>
+                  <div className="card-desc">{card.desc}</div>
+                  <div className="card-footer">
+                    <div className="cta-btn cta-btn-inspo">
+                      {isExternalUrl(card.cta) ? '查看更多' : '閱讀更多'}
                     </div>
                   </div>
-                  <div className="card-body">
-                    <div className="card-title">{card.name}</div>
-                    <div className="card-desc">{card.desc}</div>
-                    <div className="card-footer">
-                      <div className="cta-btn cta-btn-inspo">
-                        {isExt ? '查看更多' : '閱讀更多'}
+                </div>
+              )
+
+              // External URL: div card, only button is clickable
+              if (isExternalUrl(card.cta)) {
+                return (
+                  <div key={card.id} className="card card-inspo">
+                    {imgEl}
+                    <div className="card-body">
+                      <div className="card-title">{card.name}</div>
+                      <div className="card-desc">{card.desc}</div>
+                      <div className="card-footer">
+                        <a href={card.cta} target="_blank" rel="noopener noreferrer" className="cta-btn cta-btn-inspo">
+                          查看更多 <ExtIcon />
+                        </a>
                       </div>
                     </div>
                   </div>
-                </>
-              )
-              if (isExt) {
-                return (
-                  <a key={card.id} href={card.cta} target="_blank" rel="noopener noreferrer" className="card card-inspo">
-                    {commonInner}
-                  </a>
                 )
               }
+
+              // Empty CTA or internal: whole card is a link
               return (
                 <Link key={card.id} href={internalHref(card)} className="card card-inspo">
-                  {commonInner}
+                  {imgEl}{bodyEl}
                 </Link>
               )
             })}

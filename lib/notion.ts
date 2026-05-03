@@ -8,10 +8,11 @@ export type CardType = '旅遊行程' | '好用工具' | '通用模板' | '靈�
 export interface NotionCard {
   id: string       // page ID without dashes
   icon: string
+  cover: string    // cover image URL, empty string if none
   name: string
   type: CardType
   desc: string
-  cta: string      // raw CTA field: URL | invite code | label | ''
+  cta: string      // raw CTA field: 'https://...' | 'ig:keyword' | '複製:code' | ''
   tags: string[]
   dateRange: string
   persons: string
@@ -22,12 +23,21 @@ function richText(field: unknown): string {
   return f?.rich_text?.[0]?.plain_text?.trim() ?? ''
 }
 
+function parseCover(page: any): string {
+  const c = page.cover
+  if (!c) return ''
+  if (c.type === 'external') return c.external?.url ?? ''
+  if (c.type === 'file') return c.file?.url ?? ''
+  return ''
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function parseCard(page: any): NotionCard {
   const p = page.properties
   return {
     id: page.id.replace(/-/g, ''),
     icon: page.icon?.emoji ?? '',
+    cover: parseCover(page),
     name: p['名稱']?.title?.[0]?.plain_text?.trim() ?? '',
     type: p['類型']?.select?.name ?? '',
     desc: richText(p['說明']),
