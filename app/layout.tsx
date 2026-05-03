@@ -12,7 +12,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="zh-TW">
       <body>
         <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-          {children}
+          <div style={{ flex: 1 }}>
+            {children}
+          </div>
           <Footer />
         </div>
       </body>
