@@ -21,6 +21,7 @@ export default async function NotionDetailPage({ card, backHref, backLabel, colo
   const { content, related } = splitBlocks(flattenBlocks(rawBlocks))
 
   const igGated = card.tags.includes('IG 粉絲限定') || card.cta.startsWith('ig:')
+  const igCtaHref = isExternalUrl(card.cta) ? card.cta : 'https://www.instagram.com/aimi.go_/'
   const extUrl = !igGated && isExternalUrl(card.cta)
   const code = isInviteCode(card.cta)
   const contentTags = card.tags.filter(t => !['IG 粉絲限定', '行程分享'].includes(t))
@@ -97,8 +98,8 @@ export default async function NotionDetailPage({ card, backHref, backLabel, colo
               <div className="ig-step"><div className="ig-step-num">2</div><div className="ig-step-sub">私訊 Aimi 說出行程名稱</div></div>
               <div className="ig-step"><div className="ig-step-num">3</div><div className="ig-step-sub">取得 Notion 行程連結</div></div>
             </div>
-            <a className="ig-btn" href="https://www.instagram.com/aimi.go_/" target="_blank" rel="noopener noreferrer">
-              前往 Instagram @aimi.go_
+            <a className="ig-btn" href={igCtaHref} target="_blank" rel="noopener noreferrer">
+              前往指定貼文領取行程
             </a>
           </div>
         )}
@@ -116,7 +117,7 @@ export default async function NotionDetailPage({ card, backHref, backLabel, colo
       </div>
 
       {igGated && (
-        <BottomCta href="https://www.instagram.com/aimi.go_/" label="前往指定貼文領取行程"
+        <BottomCta href={igCtaHref} label="前往指定貼文領取行程"
           variant="ig" external moreHref={backHref} moreLabel={`看更多${backLabel}`} />
       )}
       {extUrl && (
