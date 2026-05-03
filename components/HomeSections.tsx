@@ -35,6 +35,17 @@ function isComingSoon(cta: string) {
   return cta === '佛系整理中'
 }
 
+// Extract YYYYMM from trip names like "202603 土耳其", "2023-12 香港", "2025 沖繩"
+function tripDateKey(name: string): number {
+  let m = name.match(/^(\d{6})/)
+  if (m) return parseInt(m[1])
+  m = name.match(/^(\d{4})-(\d{1,2})/)
+  if (m) return parseInt(m[1]) * 100 + parseInt(m[2])
+  m = name.match(/^(\d{4})/)
+  if (m) return parseInt(m[1]) * 100
+  return 0
+}
+
 function internalHref(card: NotionCard) {
   return `/${TYPE_SLUG[card.type]}/${card.id}`
 }
@@ -42,7 +53,9 @@ function internalHref(card: NotionCard) {
 export default function HomeSections({ cards }: { cards: NotionCard[] }) {
   const [active, setActive] = useState<Filter>('all')
 
-  const tripCards = cards.filter(c => c.type === '旅遊行程')
+  const tripCards = cards
+    .filter(c => c.type === '旅遊行程')
+    .sort((a, b) => tripDateKey(b.name) - tripDateKey(a.name))
   const toolCards = cards.filter(c => c.type === '好用工具')
   const templateCards = cards.filter(c => c.type === '通用模板')
   const inspoCards = cards.filter(c => c.type === '靈感收藏')
