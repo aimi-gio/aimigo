@@ -131,7 +131,7 @@ a { text-decoration: none; color: inherit; }
 .btn-ig-hero:hover { background-position: 100% 50%; opacity: 0.95; }
 
 /* ── Content Container ──────────────────────────────────────── */
-.content { max-width: 720px; margin: 0 auto; padding: 1.75rem 2rem 0; }
+.content { max-width: 900px; margin: 0 auto; padding: 1.75rem 2rem 0; }
 
 /* ── Main (homepage) ────────────────────────────────────────── */
 .main { max-width: 900px; margin: 0 auto; padding: 1.5rem 2rem 0; }
@@ -318,7 +318,7 @@ a { text-decoration: none; color: inherit; }
 }
 
 /* ── Bottom CTA ─────────────────────────────────────────────── */
-.bottom-cta-wrap { max-width: 720px; margin: 0 auto; padding: 0 2rem 2rem; }
+.bottom-cta-wrap { max-width: 900px; margin: 0 auto; padding: 0 2rem 2rem; }
 .bottom-cta {
   display: flex; align-items: center; justify-content: center; gap: 8px;
   position: relative; overflow: hidden;
@@ -761,4 +761,4 @@ a { text-decoration: none; color: inherit; }
 .media-btn:hover { opacity: 0.8; }
 
 /* ── Text after bottom CTA ──────────────────────────────────── */
-.text-link-wrap { max-width: 720px; margin: 0 auto; padding: 0.75rem 2rem 2rem; text-align: center; }
+.text-link-wrap { max-width: 900px; margin: 0 auto; padding: 0.75rem 2rem 2rem; text-align: center; }
