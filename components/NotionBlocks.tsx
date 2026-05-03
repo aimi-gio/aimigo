@@ -136,7 +136,7 @@ function Block({ block }: { block: any }) {
       if (!url) return null
       return (
         <div style={{ margin: '1.25rem 0', borderRadius: 8, overflow: 'hidden', border: '0.5px solid var(--color-border)' }}>
-          <iframe src={url} width="100%" height="420" style={{ border: 'none', display: 'block' }} />
+          <iframe src={url} width="100%" height="500" frameBorder="0" style={{ display: 'block' }} />
         </div>
       )
     }
