@@ -45,6 +45,12 @@ export default async function NotionDetailPage({ card, backHref, backLabel, colo
             <span className="tag tag-category">{card.type}</span>
             {contentTags.map(t => <span key={t} className="tag">{t}</span>)}
           </div>
+          {card.lastUpdated && (
+            <div className="last-updated">
+              <div className="last-updated-dot" />
+              最後更新 {card.lastUpdated}
+            </div>
+          )}
         </div>
 
         {(card.dateRange || card.persons) && (

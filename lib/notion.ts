@@ -16,6 +16,7 @@ export interface NotionCard {
   tags: string[]
   dateRange: string
   persons: string
+  lastUpdated: string  // formatted as YYYY/M/D
 }
 
 function richText(field: unknown): string {
@@ -56,7 +57,14 @@ function parseCard(page: any): NotionCard {
     tags: p['標籤']?.multi_select?.map((t: any) => t.name) ?? [],
     dateRange: richText(p['日期/天數']),
     persons: richText(p['適用人數']),
+    lastUpdated: formatDate(page.last_edited_time ?? ''),
   }
+}
+
+function formatDate(iso: string): string {
+  if (!iso) return ''
+  const d = new Date(iso)
+  return `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()}`
 }
 
 function toDashedId(id: string): string {
