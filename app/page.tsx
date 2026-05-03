@@ -4,7 +4,8 @@ import { getAllCards } from '@/lib/notion'
 
 export const revalidate = 3600
 
-export default async function Home() {
+export default async function Home({ searchParams }: { searchParams: Promise<{ tab?: string }> }) {
+  const { tab } = await searchParams
   const cards = await getAllCards()
   return (
     <>
@@ -21,7 +22,7 @@ export default async function Home() {
           </div>
         </div>
       </div>
-      <HomeSections cards={cards} />
+      <HomeSections cards={cards} initialTab={tab} />
     </>
   )
 }

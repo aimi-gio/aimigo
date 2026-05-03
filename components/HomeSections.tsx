@@ -50,8 +50,12 @@ function internalHref(card: NotionCard) {
   return `/${TYPE_SLUG[card.type]}/${card.id}`
 }
 
-export default function HomeSections({ cards }: { cards: NotionCard[] }) {
-  const [active, setActive] = useState<Filter>('all')
+const VALID_FILTERS: Filter[] = ['all', 'trip', 'tool', 'template', 'inspo']
+
+export default function HomeSections({ cards, initialTab }: { cards: NotionCard[]; initialTab?: string }) {
+  const [active, setActive] = useState<Filter>(
+    VALID_FILTERS.includes(initialTab as Filter) ? (initialTab as Filter) : 'all'
+  )
 
   const tripCards = cards
     .filter(c => c.type === '旅遊行程')

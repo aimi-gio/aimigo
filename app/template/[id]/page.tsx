@@ -84,14 +84,14 @@ export default async function TemplatePage({ params }: { params: Promise<{ id: s
   if (!template) {
     const card = await getCardById(id)
     if (!card || card.type !== '通用模板') notFound()
-    return <NotionDetailPage card={card} backHref="/" backLabel="通用模板" colorVar="--color-template" variant="template" />
+    return <NotionDetailPage card={card} backHref="/?tab=template" backLabel="通用模板" colorVar="--color-template" variant="template" />
   }
 
   const detail = templateDetails[id] ?? defaultDetail
 
   return (
     <>
-      <DetailNav title={template.title} backHref="/" backLabel="通用模板" />
+      <DetailNav title={template.title} backHref="/?tab=template" backLabel="通用模板" />
 
       <div className="hero" style={{ background: 'var(--color-template)' }}>
         <div className="hero-bg">{template.emoji}</div>
@@ -187,7 +187,7 @@ export default async function TemplatePage({ params }: { params: Promise<{ id: s
         label={detail.ctaLabel}
         variant="template"
         external
-        moreHref="/"
+        moreHref="/?tab=template"
         moreLabel="看更多模板"
       />
     </>

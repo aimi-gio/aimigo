@@ -136,7 +136,7 @@ const defaultDetail = {
   what: ['行程內容整理中，敬請期待'] as string[],
   tips: [] as Array<{ icon: string; text: string }>,
   related: [] as Array<{ href: string; emoji?: string; type: string; title: string; desc?: string }>,
-  ctaHref: '/',
+  ctaHref: '/?tab=trip',
   ctaLabel: '返回首頁',
   lastUpdated: '更新中',
 }
@@ -149,7 +149,7 @@ export default async function TripPage({ params }: { params: Promise<{ id: strin
   if (!trip) {
     const card = await getCardById(id)
     if (!card || card.type !== '旅遊行程') notFound()
-    return <NotionDetailPage card={card} backHref="/" backLabel="旅遊行程" colorVar="--color-trip" variant="trip" />
+    return <NotionDetailPage card={card} backHref="/?tab=trip" backLabel="旅遊行程" colorVar="--color-trip" variant="trip" />
   }
 
   const detail = tripDetails[id] ?? defaultDetail
@@ -160,7 +160,7 @@ export default async function TripPage({ params }: { params: Promise<{ id: strin
 
   return (
     <>
-      <DetailNav title={trip.title} backHref="/" backLabel="旅遊行程" />
+      <DetailNav title={trip.title} backHref="/?tab=trip" backLabel="旅遊行程" />
 
       <div className="hero" style={heroStyle}>
         <div className="hero-emoji">{trip.emoji}</div>
@@ -361,7 +361,7 @@ export default async function TripPage({ params }: { params: Promise<{ id: strin
         label={detail.ctaLabel}
         variant={isIg ? 'ig' : 'trip'}
         external
-        moreHref="/"
+        moreHref="/?tab=trip"
         moreLabel="看更多行程"
       />
     </>

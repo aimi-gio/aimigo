@@ -39,7 +39,7 @@ const inspoDetails: Record<string, {
       { id: 'mudan-villa', emoji: '🌿', label: '牡丹 小山溪', sub: '週末近郊兩人包棟', bg: '#e8f0e0' },
       { id: 'google-map-labels', emoji: '🗺️', label: 'Google Map 標籤', sub: '分類中的分類功能', bg: '#f0e8d8' },
     ],
-    ctaHref: '/',
+    ctaHref: '/?tab=inspo',
     ctaLabel: '瀏覽更多靈感收藏',
     lastUpdated: '2026/2/11',
   },
@@ -49,7 +49,7 @@ const defaultDetail = {
   tags: [] as string[],
   body: ['內容整理中，敬請期待。'] as string[],
   related: [] as Array<{ href: string; emoji?: string; type: string; title: string; desc?: string }>,
-  ctaHref: '/',
+  ctaHref: '/?tab=inspo',
   ctaLabel: '瀏覽更多靈感收藏',
   lastUpdated: '更新中',
 }
@@ -61,14 +61,14 @@ export default async function InspoPage({ params }: { params: Promise<{ id: stri
   if (!item) {
     const card = await getCardById(id)
     if (!card || card.type !== '靈感收藏') notFound()
-    return <NotionDetailPage card={card} backHref="/" backLabel="靈感收藏" colorVar="--color-inspo" variant="inspo" />
+    return <NotionDetailPage card={card} backHref="/?tab=inspo" backLabel="靈感收藏" colorVar="--color-inspo" variant="inspo" />
   }
 
   const detail = inspoDetails[id] ?? defaultDetail
 
   return (
     <>
-      <DetailNav title={item.title} backHref="/" backLabel="靈感收藏" />
+      <DetailNav title={item.title} backHref="/?tab=inspo" backLabel="靈感收藏" />
 
       <div className="hero" style={{ background: 'var(--color-inspo)' }}>
         <div className="hero-emoji">{item.emoji}</div>
@@ -147,7 +147,7 @@ export default async function InspoPage({ params }: { params: Promise<{ id: stri
         href={detail.ctaHref}
         label={detail.ctaLabel}
         variant="inspo"
-        moreHref="/"
+        moreHref="/?tab=inspo"
         moreLabel="看更多靈感收藏"
       />
     </>

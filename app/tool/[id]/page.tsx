@@ -87,14 +87,14 @@ export default async function ToolPage({ params }: { params: Promise<{ id: strin
   if (!tool || !toolDetails[id]) {
     const card = await getCardById(id)
     if (!card || card.type !== '好用工具') notFound()
-    return <NotionDetailPage card={card} backHref="/" backLabel="好用工具" colorVar="--color-tool" variant="tool" />
+    return <NotionDetailPage card={card} backHref="/?tab=tool" backLabel="好用工具" colorVar="--color-tool" variant="tool" />
   }
 
   const detail = toolDetails[id]
 
   return (
     <>
-      <DetailNav title={tool.title} backHref="/" backLabel="好用工具" />
+      <DetailNav title={tool.title} backHref="/?tab=tool" backLabel="好用工具" />
 
       <div className="hero" style={{ background: 'var(--color-tool)' }}>
         <div className="hero-bg">{tool.emoji}</div>
@@ -227,7 +227,7 @@ export default async function ToolPage({ params }: { params: Promise<{ id: strin
         label={detail.ctaLabel}
         variant="tool"
         external
-        moreHref="/"
+        moreHref="/?tab=tool"
         moreLabel="看更多工具"
       />
     </>
