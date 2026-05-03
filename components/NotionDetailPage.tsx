@@ -30,7 +30,10 @@ export default async function NotionDetailPage({ card, backHref, backLabel, colo
     }
     return card.relatedUrl || 'https://www.instagram.com/aimi.go_/'
   })()
-  const extUrl = !igGated && isExternalUrl(card.cta)
+  const resolvedCtaUrl = isExternalUrl(card.cta) ? card.cta : card.ctaUrl
+  const extUrl = !igGated && !!resolvedCtaUrl
+  const ctaLabel = (!isExternalUrl(card.cta) && card.cta && !card.cta.startsWith('ig:') && !isInviteCode(card.cta))
+    ? card.cta : '查看更多'
   const code = isInviteCode(card.cta)
   const contentTags = card.tags.filter(t => !['IG 粉絲限定', '行程分享'].includes(t))
 
@@ -129,7 +132,7 @@ export default async function NotionDetailPage({ card, backHref, backLabel, colo
           variant="ig" external moreHref={backHref} moreLabel={`看更多${backLabel}`} />
       )}
       {extUrl && (
-        <BottomCta href={card.cta} label="查看更多"
+        <BottomCta href={resolvedCtaUrl} label={ctaLabel}
           variant={variant} external moreHref={backHref} moreLabel={`看更多${backLabel}`} />
       )}
       {!igGated && !extUrl && (

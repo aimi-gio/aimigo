@@ -12,7 +12,8 @@ export interface NotionCard {
   name: string
   type: CardType
   desc: string
-  cta: string      // raw CTA field: 'https://...' | 'ig:keyword' | '複製:code' | ''
+  cta: string      // raw CTA field: 'https://...' | 'ig:keyword' | '複製:code' | text
+  ctaUrl: string   // resolved URL from CTA (URL property or rich_text hyperlink)
   tags: string[]
   dateRange: string
   persons: string
@@ -55,6 +56,7 @@ function parseCard(page: any): NotionCard {
     type: p['類型']?.select?.name ?? '',
     desc: richText(p['說明']),
     cta: p['CTA']?.url ?? richText(p['CTA']),
+    ctaUrl: p['CTA']?.url ?? p['CTA']?.rich_text?.[0]?.text?.link?.url ?? '',
     tags: p['標籤']?.multi_select?.map((t: any) => t.name) ?? [],
     dateRange: richText(p['日期/天數']),
     persons: richText(p['適用人數']),
