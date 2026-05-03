@@ -11,6 +11,26 @@ export const metadata = {
 
 const ABOUT_PAGE_ID = '34c18206525680369cb9dbe41b2be2f9'
 
+const FALLBACK_STATS = [
+  { num: '2018', label: '開始成為 UI/UX 設計師' },
+  { num: '2022', label: '開始經營內容' },
+  { num: '12+',  label: '去過的國家數' },
+  { num: '100%', label: '都是真實體驗分享' },
+]
+
+function parseStats(blocks: any[]): { num: string; label: string }[] {
+  const callout = blocks.find(b => b.type === 'callout' && b.callout?.icon?.emoji === '📌')
+  if (!callout) return []
+  return (callout.children ?? [])
+    .filter((b: any) => b.type === 'bulleted_list_item')
+    .map((b: any) => {
+      const text = (b.bulleted_list_item?.rich_text ?? []).map((r: any) => r.plain_text).join('')
+      const sep = text.indexOf('|')
+      if (sep === -1) return { num: text.trim(), label: '' }
+      return { num: text.slice(0, sep).trim(), label: text.slice(sep + 1).trim() }
+    })
+}
+
 const ExtIcon = () => (
   <svg className="ext-icon" viewBox="0 0 12 12" fill="none" aria-hidden
     style={{ color: 'var(--color-text-muted)', width: 14, height: 14 }}>
@@ -21,16 +41,24 @@ const ExtIcon = () => (
 )
 
 export default async function AboutPage() {
+  let stats = FALLBACK_STATS
   let bodyBlocks: any[] = []
   let faqBlocks: any[] = []
 
   try {
     const rawBlocks = await getPageBlocks(ABOUT_PAGE_ID)
     const { content } = splitBlocks(flattenBlocks(rawBlocks))
-    bodyBlocks = content.filter(b => b.type !== 'toggle')
+
+    const parsed = parseStats(content)
+    if (parsed.length > 0) stats = parsed
+
+    // exclude 📌 callout from body (it's rendered as stats grid)
+    bodyBlocks = content.filter(b =>
+      b.type !== 'toggle' && !(b.type === 'callout' && b.callout?.icon?.emoji === '📌')
+    )
     faqBlocks = content.filter(b => b.type === 'toggle')
   } catch {
-    // page not accessible, show static content only
+    // page not accessible, use fallback static content
   }
 
   return (
@@ -57,22 +85,12 @@ export default async function AboutPage() {
       <div className="content" style={{ paddingBottom: '3rem' }}>
 
         <div className="about-stats">
-          <div className="about-stat">
-            <div className="about-stat-num">2018</div>
-            <div className="about-stat-label">開始成為 UI/UX 設計師</div>
-          </div>
-          <div className="about-stat">
-            <div className="about-stat-num">2022</div>
-            <div className="about-stat-label">開始經營內容</div>
-          </div>
-          <div className="about-stat">
-            <div className="about-stat-num">12+</div>
-            <div className="about-stat-label">去過的國家數</div>
-          </div>
-          <div className="about-stat">
-            <div className="about-stat-num">100%</div>
-            <div className="about-stat-label">都是真實體驗分享</div>
-          </div>
+          {stats.map((s, i) => (
+            <div key={i} className="about-stat">
+              <div className="about-stat-num">{s.num}</div>
+              <div className="about-stat-label">{s.label}</div>
+            </div>
+          ))}
         </div>
 
         {bodyBlocks.length > 0 && (
