@@ -24,9 +24,11 @@ export default async function NotionDetailPage({ card, backHref, backLabel, colo
   const igCtaHref = (() => {
     if (card.cta.startsWith('ig:')) {
       const rest = card.cta.slice(3)
-      return rest.startsWith('http') ? rest : 'https://www.instagram.com/aimi.go_/'
+      if (rest.startsWith('http')) return rest
+    } else if (isExternalUrl(card.cta)) {
+      return card.cta
     }
-    return isExternalUrl(card.cta) ? card.cta : 'https://www.instagram.com/aimi.go_/'
+    return card.relatedUrl || 'https://www.instagram.com/aimi.go_/'
   })()
   const extUrl = !igGated && isExternalUrl(card.cta)
   const code = isInviteCode(card.cta)

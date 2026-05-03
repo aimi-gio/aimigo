@@ -17,6 +17,7 @@ export interface NotionCard {
   dateRange: string
   persons: string
   lastUpdated: string  // formatted as YYYY/M/D
+  relatedUrl: string   // 相關入口 field URL
 }
 
 function richText(field: unknown): string {
@@ -58,6 +59,7 @@ function parseCard(page: any): NotionCard {
     dateRange: richText(p['日期/天數']),
     persons: richText(p['適用人數']),
     lastUpdated: formatDate(page.last_edited_time ?? ''),
+    relatedUrl: p['相關入口']?.url ?? richText(p['相關入口']),
   }
 }
 
