@@ -70,4 +70,19 @@ export async function getCardById(id: string): Promise<NotionCard | null> {
   }
 }
 
+export async function getPageBlocks(pageId: string): Promise<any[]> {
+  const res = await notion.blocks.children.list({
+    block_id: toDashedId(pageId),
+    page_size: 100,
+  })
+  return Promise.all(
+    (res.results as any[]).map(async (block) => {
+      if (block.has_children) {
+        block.children = await getPageBlocks(block.id.replace(/-/g, ''))
+      }
+      return block
+    })
+  )
+}
+
 export const revalidate = 60
