@@ -21,27 +21,30 @@ interface BottomCtaProps {
   external?: boolean
   moreHref?: string
   moreLabel?: string
+  hideButton?: boolean
 }
 
-export default function BottomCta({ href, label, variant = 'trip', external = false, moreHref, moreLabel }: BottomCtaProps) {
+export default function BottomCta({ href, label, variant = 'trip', external = false, moreHref, moreLabel, hideButton = false }: BottomCtaProps) {
   const variantClass = variant === 'ig' ? 'bottom-cta-ig' : `bottom-cta-${variant}`
   const ctaStyle = variant !== 'ig' ? { background: `var(--color-${variant})` } : {}
 
   return (
     <>
-      <div className="bottom-cta-wrap">
-        {external ? (
-          <a href={href} target="_blank" rel="noopener noreferrer"
-            className={`bottom-cta ${variantClass}`} style={ctaStyle}>
-            <span>{label}</span>
-            <ExtIcon />
-          </a>
-        ) : (
-          <Link href={href} className={`bottom-cta ${variantClass}`} style={ctaStyle}>
-            <span>{label}</span>
-          </Link>
-        )}
-      </div>
+      {!hideButton && (
+        <div className="bottom-cta-wrap">
+          {external ? (
+            <a href={href} target="_blank" rel="noopener noreferrer"
+              className={`bottom-cta ${variantClass}`} style={ctaStyle}>
+              <span>{label}</span>
+              <ExtIcon />
+            </a>
+          ) : (
+            <Link href={href} className={`bottom-cta ${variantClass}`} style={ctaStyle}>
+              <span>{label}</span>
+            </Link>
+          )}
+        </div>
+      )}
       {moreHref && moreLabel && (
         <div className="text-link-wrap">
           <Link href={moreHref} className="text-link-arrow">
