@@ -23,11 +23,22 @@ function richText(field: unknown): string {
   return f?.rich_text?.[0]?.plain_text?.trim() ?? ''
 }
 
+function parseFileUrl(f: any): string {
+  if (!f) return ''
+  if (f.type === 'external') return f.external?.url ?? ''
+  if (f.type === 'file') return f.file?.url ?? ''
+  return ''
+}
+
 function parseCover(page: any): string {
-  const c = page.cover
-  if (!c) return ''
-  if (c.type === 'external') return c.external?.url ?? ''
-  if (c.type === 'file') return c.file?.url ?? ''
+  // 優先：頁面頂部 cover
+  const url = parseFileUrl(page.cover)
+  if (url) return url
+  // Fallback：資料庫「封面」欄位（Files 屬性）
+  const prop = page.properties?.['封面']
+  if (prop?.type === 'files' && prop.files?.length > 0) {
+    return parseFileUrl(prop.files[0])
+  }
   return ''
 }
 
