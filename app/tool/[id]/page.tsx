@@ -1,5 +1,7 @@
 import { notFound } from 'next/navigation'
 import { tools } from '@/lib/data'
+import { getCardById } from '@/lib/notion'
+import NotionDetailPage from '@/components/NotionDetailPage'
 import DetailNav from '@/components/DetailNav'
 import RelatedCard from '@/components/RelatedCard'
 import BottomCta from '@/components/BottomCta'
@@ -80,8 +82,13 @@ const toolDetails: Record<string, {
 
 export default async function ToolPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
+
   const tool = tools.find((t) => t.id === id && !t.inviteCode && t.ctaHref !== '#')
-  if (!tool || !toolDetails[id]) notFound()
+  if (!tool || !toolDetails[id]) {
+    const card = await getCardById(id)
+    if (!card || card.type !== '好用工具') notFound()
+    return <NotionDetailPage card={card} backHref="/" backLabel="好用工具" colorVar="--color-tool" variant="tool" />
+  }
 
   const detail = toolDetails[id]
 

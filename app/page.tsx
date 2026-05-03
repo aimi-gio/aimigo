@@ -1,7 +1,11 @@
 import Nav from '@/components/Nav'
 import HomeSections from '@/components/HomeSections'
+import { getAllCards } from '@/lib/notion'
 
-export default function Home() {
+export const revalidate = 60
+
+export default async function Home() {
+  const cards = await getAllCards()
   return (
     <>
       <Nav />
@@ -17,7 +21,7 @@ export default function Home() {
           </div>
         </div>
       </div>
-      <HomeSections />
+      <HomeSections cards={cards} />
     </>
   )
 }

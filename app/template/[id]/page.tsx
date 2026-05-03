@@ -1,5 +1,7 @@
 import { notFound } from 'next/navigation'
 import { templates } from '@/lib/data'
+import { getCardById } from '@/lib/notion'
+import NotionDetailPage from '@/components/NotionDetailPage'
 import DetailNav from '@/components/DetailNav'
 import RelatedCard from '@/components/RelatedCard'
 import BottomCta from '@/components/BottomCta'
@@ -77,8 +79,13 @@ const defaultDetail = {
 
 export default async function TemplatePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
+
   const template = templates.find((t) => t.id === id)
-  if (!template) notFound()
+  if (!template) {
+    const card = await getCardById(id)
+    if (!card || card.type !== '通用模板') notFound()
+    return <NotionDetailPage card={card} backHref="/" backLabel="通用模板" colorVar="--color-template" variant="template" />
+  }
 
   const detail = templateDetails[id] ?? defaultDetail
 

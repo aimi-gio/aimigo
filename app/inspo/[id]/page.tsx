@@ -1,5 +1,7 @@
 import { notFound } from 'next/navigation'
 import { inspo } from '@/lib/data'
+import { getCardById } from '@/lib/notion'
+import NotionDetailPage from '@/components/NotionDetailPage'
 import DetailNav from '@/components/DetailNav'
 import RelatedCard from '@/components/RelatedCard'
 import BottomCta from '@/components/BottomCta'
@@ -54,8 +56,13 @@ const defaultDetail = {
 
 export default async function InspoPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
+
   const item = inspo.find((i) => i.id === id)
-  if (!item) notFound()
+  if (!item) {
+    const card = await getCardById(id)
+    if (!card || card.type !== '靈感收藏') notFound()
+    return <NotionDetailPage card={card} backHref="/" backLabel="靈感收藏" colorVar="--color-inspo" variant="inspo" />
+  }
 
   const detail = inspoDetails[id] ?? defaultDetail
 

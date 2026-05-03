@@ -1,5 +1,7 @@
 import { notFound } from 'next/navigation'
 import { trips } from '@/lib/data'
+import { getCardById } from '@/lib/notion'
+import NotionDetailPage from '@/components/NotionDetailPage'
 import DetailNav from '@/components/DetailNav'
 import SmoothDetails from '@/components/SmoothDetails'
 import RelatedCard from '@/components/RelatedCard'
@@ -141,8 +143,14 @@ const defaultDetail = {
 
 export default async function TripPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
+
+  // Static content takes priority for known IDs
   const trip = trips.find((t) => t.id === id && t.type !== 'placeholder')
-  if (!trip) notFound()
+  if (!trip) {
+    const card = await getCardById(id)
+    if (!card || card.type !== '旅遊行程') notFound()
+    return <NotionDetailPage card={card} backHref="/" backLabel="旅遊行程" colorVar="--color-trip" variant="trip" />
+  }
 
   const detail = tripDetails[id] ?? defaultDetail
   const isIg = trip.type === 'ig'

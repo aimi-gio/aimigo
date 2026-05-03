@@ -204,6 +204,9 @@ a { text-decoration: none; color: inherit; }
 .card-placeholder-inner { text-align: center; }
 .card-placeholder-plus  { font-size: 20px; color: var(--color-text-muted); margin-bottom: 6px; }
 .card-placeholder-label { font-size: 13px; color: var(--color-text-muted); }
+.card-disabled { cursor: default; opacity: 0.6; }
+.card-disabled:hover { transform: none; box-shadow: var(--shadow-card); }
+.cta-btn-disabled { background: var(--color-bg-secondary); color: var(--color-text-muted); border: 0.5px solid var(--color-border); font-size: 12px; }
 
 /* ── CTA Buttons ────────────────────────────────────────────── */
 .cta-btn {
