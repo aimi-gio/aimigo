@@ -104,46 +104,6 @@ export default async function AboutPage() {
           ))}
         </div>
 
-        {bodyBlocks.length > 0 && (
-          <div className="article-body">
-            <NotionBlocks blocks={bodyBlocks} />
-          </div>
-        )}
-
-        <div className="about-links">
-          <a className="about-link-item" href="https://www.instagram.com/aimi.go_/" target="_blank" rel="noopener noreferrer">
-            <div className="about-link-icon">📸</div>
-            <div style={{ flex: 1 }}>
-              <div className="about-link-label">Instagram</div>
-              <div className="about-link-url">@aimi.go_</div>
-            </div>
-            <ExtIcon />
-          </a>
-          <a className="about-link-item" href="https://www.threads.com/@aimi.go_" target="_blank" rel="noopener noreferrer">
-            <div className="about-link-icon">🧵</div>
-            <div style={{ flex: 1 }}>
-              <div className="about-link-label">Threads</div>
-              <div className="about-link-url">@aimi.go_</div>
-            </div>
-            <ExtIcon />
-          </a>
-          <a className="about-link-item" href="https://sometimesgrowth.com/" target="_blank" rel="noopener noreferrer">
-            <div className="about-link-icon">✍️</div>
-            <div style={{ flex: 1 }}>
-              <div className="about-link-label">部落格</div>
-              <div className="about-link-url">sometimesgrowth.com</div>
-            </div>
-            <ExtIcon />
-          </a>
-          <a className="about-link-item" href="mailto:aimi.girr@gmail.com">
-            <div className="about-link-icon">✉️</div>
-            <div style={{ flex: 1 }}>
-              <div className="about-link-label">Email</div>
-              <div className="about-link-url">aimi.girr@gmail.com</div>
-            </div>
-          </a>
-        </div>
-
         <div className="about-collab">
           歡迎品牌合作洽談，僅接受與旅遊、設計、生活風格相關、且我有興趣親自體驗的合作。
           <br />
