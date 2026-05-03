@@ -154,8 +154,25 @@ function Block({ block }: { block: any }) {
 
     // skip types with no visual output
     case 'child_database':
+    case 'image': {
+      const img = block.image
+      if (!img) return null
+      const url = img.type === 'external' ? img.external?.url : img.file?.url
+      if (!url) return null
+      const caption = img.caption?.map((c: any) => c.plain_text).join('') ?? ''
+      return (
+        <figure key={block.id} style={{ margin: '1.25rem 0' }}>
+          <img src={url} alt={caption} style={{ width: '100%', borderRadius: 8, display: 'block' }} />
+          {caption && (
+            <figcaption style={{ fontSize: 12, color: 'var(--color-text-muted)', marginTop: 6, textAlign: 'center' }}>
+              {caption}
+            </figcaption>
+          )}
+        </figure>
+      )
+    }
+
     case 'child_page':
-    case 'image':
     case 'file':
       return null
 
