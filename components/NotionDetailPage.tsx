@@ -21,7 +21,13 @@ export default async function NotionDetailPage({ card, backHref, backLabel, colo
   const { content, related } = splitBlocks(flattenBlocks(rawBlocks))
 
   const igGated = card.tags.includes('IG 粉絲限定') || card.cta.startsWith('ig:')
-  const igCtaHref = isExternalUrl(card.cta) ? card.cta : 'https://www.instagram.com/aimi.go_/'
+  const igCtaHref = (() => {
+    if (card.cta.startsWith('ig:')) {
+      const rest = card.cta.slice(3)
+      return rest.startsWith('http') ? rest : 'https://www.instagram.com/aimi.go_/'
+    }
+    return isExternalUrl(card.cta) ? card.cta : 'https://www.instagram.com/aimi.go_/'
+  })()
   const extUrl = !igGated && isExternalUrl(card.cta)
   const code = isInviteCode(card.cta)
   const contentTags = card.tags.filter(t => !['IG 粉絲限定', '行程分享'].includes(t))
