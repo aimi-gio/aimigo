@@ -85,4 +85,4 @@ export async function getPageBlocks(pageId: string): Promise<any[]> {
   )
 }
 
-export const revalidate = 60
+export const revalidate = 3600

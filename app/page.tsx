@@ -2,7 +2,7 @@ import Nav from '@/components/Nav'
 import HomeSections from '@/components/HomeSections'
 import { getAllCards } from '@/lib/notion'
 
-export const revalidate = 60
+export const revalidate = 3600
 
 export default async function Home() {
   const cards = await getAllCards()
