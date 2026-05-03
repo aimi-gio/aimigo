@@ -32,8 +32,11 @@ export default async function NotionDetailPage({ card, backHref, backLabel, colo
     <>
       <DetailNav title={card.name} backHref={backHref} backLabel={backLabel} />
 
-      <div className="hero" style={{ background: `var(${colorVar})` }}>
-        <div className="hero-emoji">{card.icon || '✨'}</div>
+      <div className="hero" style={card.cover ? {} : { background: `var(${colorVar})` }}>
+        {card.cover
+          ? <img src={card.cover} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+          : <div className="hero-emoji">{card.icon || '✨'}</div>
+        }
         <div className="hero-overlay">
           <div className="hero-title">{card.name}</div>
         </div>
