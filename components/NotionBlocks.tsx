@@ -119,7 +119,13 @@ function Block({ block }: { block: any }) {
       if (emoji === '🎀') return null           // internal note → skip
       if (emoji === '🔗') return null           // handled in related section
       const rt: any[] = block.callout?.rich_text ?? []
-      return <div className="disclaimer">{renderRichText(rt)}</div>
+      const children = block.children ?? []
+      return (
+        <div className="disclaimer">
+          {rt.length > 0 && renderRichText(rt)}
+          {children.length > 0 && <NotionBlocks blocks={children} />}
+        </div>
+      )
     }
 
     case 'toggle': {
@@ -214,13 +220,8 @@ export function splitBlocks(blocks: any[]): { content: any[]; related: any[] } {
       }
 
     } else if (t === 'callout') {
-      // Regular callout → disclaimer for own text + flatten children into content
-      if ((block.callout?.rich_text ?? []).length > 0) {
-        content.push({ ...block, _childrenStripped: true })
-      }
-      const { content: c, related: r } = splitBlocks(block.children ?? [])
-      content.push(...c)
-      related.push(...r)
+      // Regular callout → keep intact; Block renderer handles nested children
+      content.push(block)
 
     } else if (t === 'paragraph' && isRelatedParagraph(block)) {
       related.push(block)
