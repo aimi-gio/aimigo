@@ -706,6 +706,11 @@ a { text-decoration: none; color: inherit; }
 .article-body p:last-child { margin-bottom: 0; }
 .article-body strong { color: var(--color-text-primary); font-weight: 500; }
 
+/* Inline links in content area */
+.content p a, .content li a, .disclaimer a {
+  text-decoration: underline; color: var(--color-accent);
+}
+
 /* ── Highlight Quote ────────────────────────────────────────── */
 .highlight {
   background: var(--color-primary-light); border-left: 3px solid var(--color-primary);
