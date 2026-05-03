@@ -111,7 +111,7 @@ export default function HomeSections({ cards, initialTab }: { cards: NotionCard[
           {showLabel && <div className="section-label">旅遊行程</div>}
           <div className="grid">
             {tripCards.map((card) => {
-              const isIg = isIgLimited(card.cta)
+              const isIg = card.tags.includes('IG 粉絲限定') || isIgLimited(card.cta)
               const disabled = isComingSoon(card.cta)
               const chips = card.tags.filter(t => !['IG 粉絲限定', '行程分享'].includes(t))
 

@@ -15,24 +15,21 @@ interface Props {
 
 function isInviteCode(cta: string) { return /^[A-Z0-9]{6,10}$/.test(cta) }
 function isExternalUrl(cta: string) { return cta.startsWith('http') }
-function isIgGated(cta: string) { return cta.includes('領取 Notion 小書') }
-function isInstagram(cta: string) { return cta.includes('Instagram') && !isIgGated(cta) }
 
 export default async function NotionDetailPage({ card, backHref, backLabel, colorVar, variant }: Props) {
   const rawBlocks = await getPageBlocks(card.id)
   const { content, related } = splitBlocks(flattenBlocks(rawBlocks))
 
-  const igGated = isIgGated(card.cta)
-  const extUrl = isExternalUrl(card.cta)
+  const igGated = card.tags.includes('IG 粉絲限定') || card.cta.startsWith('ig:')
+  const extUrl = !igGated && isExternalUrl(card.cta)
   const code = isInviteCode(card.cta)
-  const ig = isInstagram(card.cta)
   const contentTags = card.tags.filter(t => !['IG 粉絲限定', '行程分享'].includes(t))
 
   return (
     <>
       <DetailNav title={card.name} backHref={backHref} backLabel={backLabel} />
 
-      <div className="hero" style={card.cover ? {} : { background: `var(${colorVar})` }}>
+      <div className="hero" style={card.cover ? {} : igGated ? { background: 'var(--gradient-ig)' } : { background: `var(${colorVar})` }}>
         {card.cover
           ? <img src={card.cover} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
           : <div className="hero-emoji">{card.icon || '✨'}</div>
@@ -113,18 +110,14 @@ export default async function NotionDetailPage({ card, backHref, backLabel, colo
       </div>
 
       {igGated && (
-        <BottomCta href="https://www.instagram.com/aimi.go_/" label="前往 Instagram 領取行程"
-          variant={variant} external moreHref={backHref} moreLabel={`看更多${backLabel}`} />
+        <BottomCta href="https://www.instagram.com/aimi.go_/" label="前往指定貼文領取行程"
+          variant="ig" external moreHref={backHref} moreLabel={`看更多${backLabel}`} />
       )}
       {extUrl && (
         <BottomCta href={card.cta} label="查看更多"
           variant={variant} external moreHref={backHref} moreLabel={`看更多${backLabel}`} />
       )}
-      {ig && (
-        <BottomCta href="https://www.instagram.com/aimi.go_/" label="前往 Instagram"
-          variant={variant} external moreHref={backHref} moreLabel={`看更多${backLabel}`} />
-      )}
-      {!igGated && !extUrl && !ig && (
+      {!igGated && !extUrl && (
         <BottomCta href={backHref} label={`瀏覽更多${backLabel}`}
           variant={variant} moreHref={backHref} moreLabel={`看更多${backLabel}`} />
       )}
