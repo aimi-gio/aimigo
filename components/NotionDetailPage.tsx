@@ -3,7 +3,7 @@ import { getPageBlocks } from '@/lib/notion'
 import DetailNav from './DetailNav'
 import BottomCta from './BottomCta'
 import CopyButton from './CopyButton'
-import NotionBlocks, { splitBlocks, NotionRelated } from './NotionBlocks'
+import NotionBlocks, { flattenBlocks, splitBlocks, NotionRelated } from './NotionBlocks'
 
 interface Props {
   card: NotionCard
@@ -20,7 +20,7 @@ function isInstagram(cta: string) { return cta.includes('Instagram') && !isIgGat
 
 export default async function NotionDetailPage({ card, backHref, backLabel, colorVar, variant }: Props) {
   const rawBlocks = await getPageBlocks(card.id)
-  const { content, related } = splitBlocks(rawBlocks)
+  const { content, related } = splitBlocks(flattenBlocks(rawBlocks))
 
   const igGated = isIgGated(card.cta)
   const extUrl = isExternalUrl(card.cta)
@@ -67,54 +67,43 @@ export default async function NotionDetailPage({ card, backHref, backLabel, colo
           </>
         )}
 
-        {/* IG 限定：只顯示說明 + IG 引導，不顯示 block 內容 */}
-        {igGated ? (
-          <>
-            {card.desc && (
-              <div className="article-body">
-                {card.desc.split('\n').filter(Boolean).map((line, i) => (
-                  <p key={i}>{line.replace(/^✦ /, '')}</p>
-                ))}
-              </div>
-            )}
-            <div className="ig-box">
-              <div className="ig-label">IG 粉絲限定</div>
-              <div className="ig-title">這份行程是 Aimi 的 IG 粉絲限定小書</div>
-              <div className="ig-desc">追蹤 IG @aimi.go_ 並傳送關鍵字，即可取得 Notion 行程連結。</div>
-              <div className="ig-steps">
-                <div className="ig-step"><div className="ig-step-num">1</div><div className="ig-step-sub">追蹤 Instagram @aimi.go_</div></div>
-                <div className="ig-step"><div className="ig-step-num">2</div><div className="ig-step-sub">私訊 Aimi 說出行程名稱</div></div>
-                <div className="ig-step"><div className="ig-step-num">3</div><div className="ig-step-sub">取得 Notion 行程連結</div></div>
-              </div>
-              <a className="ig-btn" href="https://www.instagram.com/aimi.go_/" target="_blank" rel="noopener noreferrer">
-                前往 Instagram @aimi.go_
-              </a>
-            </div>
-          </>
-        ) : (
-          /* 非 IG 限定：顯示完整 block 內容 */
-          <>
-            {content.length > 0 ? (
-              <div className="article-body">
-                <NotionBlocks blocks={content} />
-              </div>
-            ) : card.desc ? (
-              <div className="article-body">
-                {card.desc.split('\n').filter(Boolean).map((line, i) => (
-                  <p key={i}>{line.replace(/^✦ /, '')}</p>
-                ))}
-              </div>
-            ) : null}
+        {/* Block 內容（所有頁面都顯示，包含 IG 限定） */}
+        {content.length > 0 ? (
+          <div className="article-body">
+            <NotionBlocks blocks={content} />
+          </div>
+        ) : card.desc ? (
+          <div className="article-body">
+            {card.desc.split('\n').filter(Boolean).map((line, i) => (
+              <p key={i}>{line.replace(/^✦ /, '')}</p>
+            ))}
+          </div>
+        ) : null}
 
-            {code && (
-              <div className="note-box" style={{ marginTop: '1.25rem' }}>
-                <p>複製下方邀請碼，於 App 安裝或註冊時輸入即可享有優惠。</p>
-                <div style={{ marginTop: '1rem' }}>
-                  <CopyButton label="複製邀請碼" code={card.cta} />
-                </div>
-              </div>
-            )}
-          </>
+        {/* IG 粉絲限定引導（顯示在 block 內容下方） */}
+        {igGated && (
+          <div className="ig-box">
+            <div className="ig-label">IG 粉絲限定</div>
+            <div className="ig-title">這份行程是 Aimi 的 IG 粉絲限定小書</div>
+            <div className="ig-desc">追蹤 IG @aimi.go_ 並傳送關鍵字，即可取得 Notion 行程連結。</div>
+            <div className="ig-steps">
+              <div className="ig-step"><div className="ig-step-num">1</div><div className="ig-step-sub">追蹤 Instagram @aimi.go_</div></div>
+              <div className="ig-step"><div className="ig-step-num">2</div><div className="ig-step-sub">私訊 Aimi 說出行程名稱</div></div>
+              <div className="ig-step"><div className="ig-step-num">3</div><div className="ig-step-sub">取得 Notion 行程連結</div></div>
+            </div>
+            <a className="ig-btn" href="https://www.instagram.com/aimi.go_/" target="_blank" rel="noopener noreferrer">
+              前往 Instagram @aimi.go_
+            </a>
+          </div>
+        )}
+
+        {code && (
+          <div className="note-box" style={{ marginTop: '1.25rem' }}>
+            <p>複製下方邀請碼，於 App 安裝或註冊時輸入即可享有優惠。</p>
+            <div style={{ marginTop: '1rem' }}>
+              <CopyButton label="複製邀請碼" code={card.cta} />
+            </div>
+          </div>
         )}
 
         <NotionRelated blocks={related} />

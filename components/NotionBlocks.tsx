@@ -25,13 +25,17 @@ function plainText(rt: any[]): string {
 
 // ─── Related-block detection ──────────────────────────────────────────────────
 
-// Paragraph pattern: ["名稱｜", "https://..."] where last span has href
-function isRelatedParagraph(block: any): boolean {
-  const rt: any[] = block.paragraph?.rich_text ?? []
+// Checks if a rich_text array is a "名稱｜URL" related link
+function isRelatedRichText(rt: any[]): boolean {
   if (rt.length < 2) return false
   const first = rt[0].plain_text as string
   const last = rt[rt.length - 1]
   return (first.endsWith('｜') || first.endsWith(' | ') || first.endsWith('|')) && !!last.href
+}
+
+// Paragraph pattern: ["名稱｜", "https://..."] where last span has href
+function isRelatedParagraph(block: any): boolean {
+  return isRelatedRichText(block.paragraph?.rich_text ?? [])
 }
 
 function detectUrlType(url: string): string {
@@ -47,17 +51,13 @@ function detectUrlType(url: string): string {
 function RelatedItem({ block }: { block: any }) {
   let title = '', href = ''
 
-  if (block.type === 'callout') {
-    const text = plainText(block.callout?.rich_text ?? [])
-    const parts = text.split(/\s*[|｜]\s*/)
-    title = parts[0]?.trim() ?? text
-    href = parts[1]?.trim() ?? '#'
-  } else {
-    // paragraph pattern
-    const rt: any[] = block.paragraph?.rich_text ?? []
-    title = rt[0].plain_text.replace(/[｜|]\s*$/, '').trim()
-    href = rt[rt.length - 1].href ?? '#'
-  }
+  // Both callout and paragraph use: span[0]="名稱｜", span[-1]=href
+  const rt: any[] = block.type === 'callout'
+    ? (block.callout?.rich_text ?? [])
+    : (block.paragraph?.rich_text ?? [])
+
+  title = rt[0]?.plain_text?.replace(/[｜|]\s*$/, '').trim() ?? ''
+  href = rt[rt.length - 1]?.href ?? '#'
 
   return <RelatedCard href={href} title={title} type={detectUrlType(href)} />
 }
@@ -164,17 +164,54 @@ function Block({ block }: { block: any }) {
 export function splitBlocks(blocks: any[]): { content: any[]; related: any[] } {
   const content: any[] = []
   const related: any[] = []
+
   for (const block of blocks) {
-    if (block.type === 'callout' && block.callout?.icon?.emoji === '🔗') {
+    const t = block.type
+    const emoji = block[t]?.icon?.emoji ?? ''
+
+    if (t === 'synced_block') {
+      // Transparent wrapper — recurse into children
+      const { content: c, related: r } = splitBlocks(block.children ?? [])
+      content.push(...c)
+      related.push(...r)
+
+    } else if (t === 'callout' && emoji === '🎀') {
+      // Internal note — skip entirely
+
+    } else if (t === 'callout' && emoji === '🔗') {
+      // Related-links container:
+      // 1. The callout's own rich_text may itself be a related link
+      if (isRelatedRichText(block.callout?.rich_text ?? [])) {
+        related.push(block)
+      }
+      // 2. Its children are individual related-link paragraphs
+      for (const child of block.children ?? []) {
+        if (child.type === 'paragraph' && isRelatedParagraph(child)) {
+          related.push(child)
+        }
+      }
+
+    } else if (t === 'callout') {
+      // Regular callout → disclaimer for own text + flatten children into content
+      if ((block.callout?.rich_text ?? []).length > 0) {
+        content.push({ ...block, _childrenStripped: true })
+      }
+      const { content: c, related: r } = splitBlocks(block.children ?? [])
+      content.push(...c)
+      related.push(...r)
+
+    } else if (t === 'paragraph' && isRelatedParagraph(block)) {
       related.push(block)
-    } else if (block.type === 'paragraph' && isRelatedParagraph(block)) {
-      related.push(block)
+
     } else {
       content.push(block)
     }
   }
   return { content, related }
 }
+
+// For legacy callers that still pass flattenBlocks — kept as no-op passthrough
+export function flattenBlocks(blocks: any[]): any[] { return blocks }
 
 export function NotionRelated({ blocks }: { blocks: any[] }) {
   if (!blocks.length) return null
