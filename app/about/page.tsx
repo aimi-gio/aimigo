@@ -1,4 +1,4 @@
-import Nav from '@/components/Nav'
+import DetailNav from '@/components/DetailNav'
 import NotionBlocks, { splitBlocks, flattenBlocks } from '@/components/NotionBlocks'
 import { getPageBlocks } from '@/lib/notion'
 
@@ -11,37 +11,126 @@ export const metadata = {
 
 const ABOUT_PAGE_ID = '34c18206525680369cb9dbe41b2be2f9'
 
+const ExtIcon = () => (
+  <svg className="ext-icon" viewBox="0 0 12 12" fill="none" aria-hidden
+    style={{ color: 'var(--color-text-muted)', width: 14, height: 14 }}>
+    <path d="M6.5 1.5H10.5V5.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M10.5 1.5L5.5 6.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+    <path d="M5 2.5H2C1.72 2.5 1.5 2.72 1.5 3V10C1.5 10.28 1.72 10.5 2 10.5H9C9.28 10.5 9.5 10.28 9.5 10V7" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+  </svg>
+)
+
 export default async function AboutPage() {
-  const rawBlocks = await getPageBlocks(ABOUT_PAGE_ID)
-  const { content } = splitBlocks(flattenBlocks(rawBlocks))
+  let bodyBlocks: any[] = []
+  let faqBlocks: any[] = []
+
+  try {
+    const rawBlocks = await getPageBlocks(ABOUT_PAGE_ID)
+    const { content } = splitBlocks(flattenBlocks(rawBlocks))
+    bodyBlocks = content.filter(b => b.type !== 'toggle')
+    faqBlocks = content.filter(b => b.type === 'toggle')
+  } catch {
+    // page not accessible, show static content only
+  }
 
   return (
     <>
-      <Nav />
-      <div style={{ maxWidth: 900, margin: '0 auto', padding: '3rem 2rem 4rem', textAlign: 'center' }}>
-        <div style={{ width: 72, height: 72, borderRadius: '50%', background: 'var(--color-accent-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, fontWeight: 500, color: 'var(--color-accent)', margin: '0 auto 1.5rem', border: '0.5px solid var(--color-border)' }}>
-          AG
-        </div>
-        <h1 style={{ fontSize: 22, fontWeight: 500, marginBottom: '0.75rem' }}>Hi，我是 Aimi！</h1>
-        <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap', marginBottom: '2.5rem' }}>
-          <a href="https://www.instagram.com/aimi.go_/" target="_blank" rel="noopener noreferrer"
-            style={{ fontSize: 13, padding: '8px 20px', borderRadius: 8, background: 'var(--color-primary)', color: '#fff' }}>
-            Instagram @aimi.go_
-          </a>
-          <a href="https://www.threads.com/@aimi.go_" target="_blank" rel="noopener noreferrer"
-            style={{ fontSize: 13, padding: '8px 20px', borderRadius: 8, background: 'var(--color-primary-light)', color: 'var(--color-text-primary)', border: '0.5px solid var(--color-border)' }}>
-            Threads @aimi.go_
-          </a>
+      <DetailNav title="關於我" backHref="/" backLabel="首頁" />
+
+      <div className="hero" style={{ background: 'var(--color-primary)' }}>
+        <div className="about-hero-pattern" />
+        <div className="about-hero-content">
+          <div className="about-avatar">AG</div>
+          <div>
+            <div className="about-hero-name">艾米 Aimi</div>
+            <div className="about-hero-bio">UIUX 設計師 / 最近患上旅遊照拍了就一定要做成貼文強迫症</div>
+          </div>
+          <div className="about-social">
+            <a className="about-social-link" href="https://www.instagram.com/aimi.go_/" target="_blank" rel="noopener noreferrer">IG</a>
+            <a className="about-social-link" href="https://www.threads.com/@aimi.go_" target="_blank" rel="noopener noreferrer">Threads</a>
+            <a className="about-social-link" href="https://sometimesgrowth.com/" target="_blank" rel="noopener noreferrer">部落格</a>
+            <a className="about-social-link" href="mailto:aimi.girr@gmail.com">Email</a>
+          </div>
         </div>
       </div>
 
-      {content.length > 0 && (
-        <div className="content" style={{ paddingBottom: '4rem' }}>
-          <div className="article-body">
-            <NotionBlocks blocks={content} />
+      <div className="content" style={{ paddingBottom: '3rem' }}>
+
+        <div className="about-stats">
+          <div className="about-stat">
+            <div className="about-stat-num">2018</div>
+            <div className="about-stat-label">開始成為 UI/UX 設計師</div>
+          </div>
+          <div className="about-stat">
+            <div className="about-stat-num">2022</div>
+            <div className="about-stat-label">開始經營內容</div>
+          </div>
+          <div className="about-stat">
+            <div className="about-stat-num">12+</div>
+            <div className="about-stat-label">去過的國家數</div>
+          </div>
+          <div className="about-stat">
+            <div className="about-stat-num">100%</div>
+            <div className="about-stat-label">都是真實體驗分享</div>
           </div>
         </div>
-      )}
+
+        {bodyBlocks.length > 0 && (
+          <div className="article-body">
+            <NotionBlocks blocks={bodyBlocks} />
+          </div>
+        )}
+
+        <div className="about-links">
+          <a className="about-link-item" href="https://www.instagram.com/aimi.go_/" target="_blank" rel="noopener noreferrer">
+            <div className="about-link-icon">📸</div>
+            <div style={{ flex: 1 }}>
+              <div className="about-link-label">Instagram</div>
+              <div className="about-link-url">@aimi.go_</div>
+            </div>
+            <ExtIcon />
+          </a>
+          <a className="about-link-item" href="https://www.threads.com/@aimi.go_" target="_blank" rel="noopener noreferrer">
+            <div className="about-link-icon">🧵</div>
+            <div style={{ flex: 1 }}>
+              <div className="about-link-label">Threads</div>
+              <div className="about-link-url">@aimi.go_</div>
+            </div>
+            <ExtIcon />
+          </a>
+          <a className="about-link-item" href="https://sometimesgrowth.com/" target="_blank" rel="noopener noreferrer">
+            <div className="about-link-icon">✍️</div>
+            <div style={{ flex: 1 }}>
+              <div className="about-link-label">部落格</div>
+              <div className="about-link-url">sometimesgrowth.com</div>
+            </div>
+            <ExtIcon />
+          </a>
+          <a className="about-link-item" href="mailto:aimi.girr@gmail.com">
+            <div className="about-link-icon">✉️</div>
+            <div style={{ flex: 1 }}>
+              <div className="about-link-label">Email</div>
+              <div className="about-link-url">aimi.girr@gmail.com</div>
+            </div>
+          </a>
+        </div>
+
+        <div className="about-collab">
+          歡迎品牌合作洽談，僅接受與旅遊、設計、生活風格相關、且我有興趣親自體驗的合作。
+          <br />
+          <a className="about-collab-email" href="mailto:aimi.girr@gmail.com">
+            aimi.girr@gmail.com
+            <ExtIcon />
+          </a>
+        </div>
+
+        {faqBlocks.length > 0 && (
+          <div className="about-faq">
+            <NotionBlocks blocks={faqBlocks} />
+          </div>
+        )}
+
+      </div>
     </>
   )
 }
