@@ -9,7 +9,7 @@ export default function AboutPage() {
   return (
     <>
       <Nav />
-      <div style={{ padding: '3rem 2rem 4rem', textAlign: 'center' }}>
+      <div style={{ maxWidth: 900, margin: '0 auto', padding: '3rem 2rem 4rem', textAlign: 'center' }}>
         <div style={{ width: 72, height: 72, borderRadius: '50%', background: 'var(--color-accent-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, fontWeight: 500, color: 'var(--color-accent)', margin: '0 auto 1.5rem', border: '0.5px solid var(--color-border)' }}>
           AG
         </div>
