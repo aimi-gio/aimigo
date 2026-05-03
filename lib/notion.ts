@@ -118,4 +118,15 @@ export async function getPageBlocks(pageId: string): Promise<any[]> {
   )
 }
 
+export async function getPagePhoto(pageId: string): Promise<string> {
+  try {
+    const page = await notion.pages.retrieve({ page_id: toDashedId(pageId) }) as any
+    if (page.icon?.type === 'external') return page.icon.external?.url ?? ''
+    if (page.icon?.type === 'file') return page.icon.file?.url ?? ''
+    return parseCover(page)
+  } catch {
+    return ''
+  }
+}
+
 export const revalidate = 3600

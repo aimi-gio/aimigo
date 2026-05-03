@@ -1,6 +1,6 @@
 import DetailNav from '@/components/DetailNav'
 import NotionBlocks, { splitBlocks, flattenBlocks } from '@/components/NotionBlocks'
-import { getPageBlocks } from '@/lib/notion'
+import { getPageBlocks, getPagePhoto } from '@/lib/notion'
 
 export const revalidate = 3600
 
@@ -25,7 +25,8 @@ function parseStats(blocks: any[]): { num: string; label: string }[] {
     .filter((b: any) => b.type === 'bulleted_list_item')
     .map((b: any) => {
       const text = (b.bulleted_list_item?.rich_text ?? []).map((r: any) => r.plain_text).join('')
-      const sep = text.indexOf('|')
+      // support both half-width | and full-width ｜
+      const sep = text.search(/[|｜]/)
       if (sep === -1) return { num: text.trim(), label: '' }
       return { num: text.slice(0, sep).trim(), label: text.slice(sep + 1).trim() }
     })
@@ -44,9 +45,14 @@ export default async function AboutPage() {
   let stats = FALLBACK_STATS
   let bodyBlocks: any[] = []
   let faqBlocks: any[] = []
+  let photo = ''
 
   try {
-    const rawBlocks = await getPageBlocks(ABOUT_PAGE_ID)
+    const [rawBlocks, pagePhoto] = await Promise.all([
+      getPageBlocks(ABOUT_PAGE_ID),
+      getPagePhoto(ABOUT_PAGE_ID),
+    ])
+    photo = pagePhoto
     const { content } = splitBlocks(flattenBlocks(rawBlocks))
 
     const parsed = parseStats(content)
@@ -68,7 +74,12 @@ export default async function AboutPage() {
       <div className="hero" style={{ background: 'var(--color-primary)' }}>
         <div className="about-hero-pattern" />
         <div className="about-hero-content">
-          <div className="about-avatar">AG</div>
+          <div className="about-avatar">
+            {photo
+              ? <img src={photo} alt="Aimi" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+              : <span>AG</span>
+            }
+          </div>
           <div>
             <div className="about-hero-name">艾米 Aimi</div>
             <div className="about-hero-bio">UIUX 設計師 / 最近患上旅遊照拍了就一定要做成貼文強迫症</div>
