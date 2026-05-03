@@ -133,7 +133,9 @@ export default async function NotionDetailPage({ card, backHref, backLabel, colo
       )}
       {extUrl && (
         <BottomCta href={resolvedCtaUrl} label={ctaLabel}
-          variant={variant} external moreHref={backHref} moreLabel={`看更多${backLabel}`} />
+          variant={variant} external
+          hideButton={ctaLabel === '查看更多'}
+          moreHref={backHref} moreLabel={`看更多${backLabel}`} />
       )}
       {!igGated && !extUrl && (
         <BottomCta href={backHref} label="" hideButton
