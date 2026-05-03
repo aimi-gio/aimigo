@@ -31,7 +31,7 @@ function parseCard(page: any): NotionCard {
     name: p['名稱']?.title?.[0]?.plain_text?.trim() ?? '',
     type: p['類型']?.select?.name ?? '',
     desc: richText(p['說明']),
-    cta: richText(p['CTA']),
+    cta: p['CTA']?.url ?? richText(p['CTA']),
     tags: p['標籤']?.multi_select?.map((t: any) => t.name) ?? [],
     dateRange: richText(p['日期/天數']),
     persons: richText(p['適用人數']),
