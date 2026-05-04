@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { templates } from '@/lib/data'
 import { getCardById } from '@/lib/notion'
@@ -5,6 +6,29 @@ import NotionDetailPage from '@/components/NotionDetailPage'
 import DetailNav from '@/components/DetailNav'
 import RelatedCard from '@/components/RelatedCard'
 import BottomCta from '@/components/BottomCta'
+
+const BASE = 'https://aimigo.vercel.app'
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params
+  const template = templates.find(t => t.id === id)
+  if (template) {
+    const img = `${BASE}/og?title=${encodeURIComponent(template.title)}&emoji=${encodeURIComponent(template.emoji)}&type=template`
+    return {
+      title: `${template.title} · Aimi Go 分享站`,
+      openGraph: { title: template.title, images: [img] },
+      twitter: { card: 'summary_large_image', images: [img] },
+    }
+  }
+  const card = await getCardById(id)
+  if (!card) return {}
+  const img = `${BASE}/og?title=${encodeURIComponent(card.name)}&emoji=${encodeURIComponent(card.icon)}&type=template`
+  return {
+    title: `${card.name} · Aimi Go 分享站`,
+    openGraph: { title: card.name, images: [img] },
+    twitter: { card: 'summary_large_image', images: [img] },
+  }
+}
 
 const ExtIcon = () => (
   <svg className="ext-icon" viewBox="0 0 12 12" fill="none" aria-hidden>

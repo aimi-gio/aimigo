@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { inspo } from '@/lib/data'
 import { getCardById } from '@/lib/notion'
@@ -5,6 +6,29 @@ import NotionDetailPage from '@/components/NotionDetailPage'
 import DetailNav from '@/components/DetailNav'
 import RelatedCard from '@/components/RelatedCard'
 import BottomCta from '@/components/BottomCta'
+
+const BASE = 'https://aimigo.vercel.app'
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params
+  const item = inspo.find(i => i.id === id)
+  if (item) {
+    const img = `${BASE}/og?title=${encodeURIComponent(item.title)}&emoji=${encodeURIComponent(item.emoji)}&type=inspo`
+    return {
+      title: `${item.title} · Aimi Go 分享站`,
+      openGraph: { title: item.title, images: [img] },
+      twitter: { card: 'summary_large_image', images: [img] },
+    }
+  }
+  const card = await getCardById(id)
+  if (!card) return {}
+  const img = `${BASE}/og?title=${encodeURIComponent(card.name)}&emoji=${encodeURIComponent(card.icon)}&type=inspo`
+  return {
+    title: `${card.name} · Aimi Go 分享站`,
+    openGraph: { title: card.name, images: [img] },
+    twitter: { card: 'summary_large_image', images: [img] },
+  }
+}
 
 const inspoDetails: Record<string, {
   tags: string[]

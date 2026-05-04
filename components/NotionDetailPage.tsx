@@ -1,5 +1,6 @@
+import Link from 'next/link'
 import type { NotionCard } from '@/lib/notion'
-import { getPageBlocks } from '@/lib/notion'
+import { getPageBlocks, getCardsByType } from '@/lib/notion'
 import DetailNav from './DetailNav'
 import BottomCta from './BottomCta'
 import CopyButton from './CopyButton'
@@ -16,9 +17,18 @@ interface Props {
 function isInviteCode(cta: string) { return /^[A-Z0-9]{6,10}$/.test(cta) }
 function isExternalUrl(cta: string) { return cta.startsWith('http') }
 
+const TYPE_SLUG: Record<string, string> = {
+  '旅遊行程': 'trip', '好用工具': 'tool', '通用模板': 'template', '靈感收藏': 'inspo',
+}
+
 export default async function NotionDetailPage({ card, backHref, backLabel, colorVar, variant }: Props) {
-  const rawBlocks = await getPageBlocks(card.id)
+  const [rawBlocks, allSameType] = await Promise.all([
+    getPageBlocks(card.id),
+    getCardsByType(card.type),
+  ])
   const { content, related } = splitBlocks(flattenBlocks(rawBlocks))
+  const sameTypeCards = allSameType.filter(c => c.id !== card.id).slice(0, 3)
+  const typeSlug = TYPE_SLUG[card.type] ?? variant
 
   const igGated = card.tags.includes('IG 粉絲限定') || card.cta.startsWith('ig:')
   const igCtaHref = (() => {
@@ -52,6 +62,14 @@ export default async function NotionDetailPage({ card, backHref, backLabel, colo
       </div>
 
       <div className="content">
+        <nav className="breadcrumb" aria-label="breadcrumb">
+          <Link href="/" className="breadcrumb-link">首頁</Link>
+          <span className="breadcrumb-sep">›</span>
+          <Link href={backHref} className="breadcrumb-link">{backLabel}</Link>
+          <span className="breadcrumb-sep">›</span>
+          <span className="breadcrumb-current">{card.name}</span>
+        </nav>
+
         <div className="post-header">
           <div className="tag-row">
             <span className="tag tag-category">{card.type}</span>
@@ -125,6 +143,20 @@ export default async function NotionDetailPage({ card, backHref, backLabel, colo
         )}
 
         <NotionRelated blocks={related} />
+
+        {sameTypeCards.length > 0 && (
+          <>
+            <div className="section-title">更多{card.type}</div>
+            <div className="related-notion-cards">
+              {sameTypeCards.map(c => (
+                <Link key={c.id} href={`/${typeSlug}/${c.id}`} className="related-notion-card">
+                  <span className="related-notion-card-emoji">{c.icon || '✨'}</span>
+                  <span className="related-notion-card-name">{c.name}</span>
+                </Link>
+              ))}
+            </div>
+          </>
+        )}
       </div>
 
       {igGated && (

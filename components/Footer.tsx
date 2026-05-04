@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import ShareRow from './ShareRow'
 
 const ExtIcon = () => (
   <svg className="ext-icon" viewBox="0 0 12 12" fill="none" aria-hidden>
@@ -39,6 +40,7 @@ export default function Footer() {
           <Link href="/#section-inspo">靈感收藏</Link>
           <Link href="/about">關於我</Link>
         </div>
+        <ShareRow />
         <div className="footer-bottom">
           <span className="footer-copy">© 2026 Aimi Go · All Rights Reserved</span>
         </div>

@@ -119,7 +119,7 @@ export default function HomeSections({ cards, initialTab }: { cards: NotionCard[
               const bodyEl = (
                 <div className="card-body">
                   <div className="card-title">{card.name}</div>
-                  <div className="card-meta">{card.dateRange}{card.persons ? ` · ${card.persons}` : ''}</div>
+                  <div className="card-meta">{[card.dateRange || '—', card.persons || '—'].join(' · ')}</div>
                   {chips.length > 0 && (
                     <div className="card-chips">
                       {chips.map((c) => <span key={c} className="chip">{c}</span>)}

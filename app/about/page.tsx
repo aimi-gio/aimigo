@@ -4,9 +4,17 @@ import { getPageBlocks, getPagePhoto } from '@/lib/notion'
 
 export const revalidate = 3600
 
+const BASE = 'https://aimigo.vercel.app'
+const ABOUT_OG = `${BASE}/og?title=${encodeURIComponent('關於我')}&emoji=✨&type=`
+
 export const metadata = {
   title: '關於我 · Aimi Go 分享站',
   description: 'UIUX 設計師 Aimi，透過 Instagram 分享旅遊行程、好用工具與生活靈感。',
+  openGraph: {
+    title: '關於我 · Aimi Go 分享站',
+    images: [ABOUT_OG],
+  },
+  twitter: { card: 'summary_large_image', images: [ABOUT_OG] },
 }
 
 const ABOUT_PAGE_ID = '34c18206525680369cb9dbe41b2be2f9'
