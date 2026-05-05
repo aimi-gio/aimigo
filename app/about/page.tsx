@@ -17,7 +17,7 @@ export const metadata = {
   twitter: { card: 'summary_large_image', images: [ABOUT_OG] },
 }
 
-const ABOUT_PAGE_ID = '34c18206525680369cb9dbe41b2be2f9'
+const ABOUT_PAGE_ID = process.env.NOTION_ABOUT_PAGE_ID ?? '34c18206525680369cb9dbe41b2be2f9'
 
 const FALLBACK_STATS = [
   { num: '2018', label: '開始成為 UI/UX 設計師' },
