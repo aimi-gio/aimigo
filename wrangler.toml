@@ -1,6 +1,6 @@
 name = "aimigo"
 main = ".open-next/worker.js"
-compatibility_date = "2025-04-01"
+compatibility_date = "2026-05-05"
 compatibility_flags = ["nodejs_compat"]
 
 [assets]
@@ -8,11 +8,5 @@ directory = ".open-next/assets"
 binding = "ASSETS"
 
 [[kv_namespaces]]
-binding = "NEXT_CACHE_WORKERS_KV"
-id = "cb79e154120245bb93df2f8ba02ac185"
-
-# 本機預覽用，執行 wrangler kv namespace create "NEXT_CACHE_WORKERS_KV" --preview 取得
-# [[ kv_namespaces ]]
-# binding = "NEXT_CACHE_WORKERS_KV"
-# id = "REPLACE_WITH_PREVIEW_KV_ID"
-# preview_id = "REPLACE_WITH_PREVIEW_KV_ID"
+binding = "NEXT_INC_CACHE_KV"
+id = "e94a9eb50b2b43bfab39724085349e0e"
