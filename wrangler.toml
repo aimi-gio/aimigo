@@ -9,7 +9,7 @@ binding = "ASSETS"
 
 [[kv_namespaces]]
 binding = "NEXT_CACHE_WORKERS_KV"
-id = "REPLACE_WITH_YOUR_KV_NAMESPACE_ID"
+id = "cb79e154120245bb93df2f8ba02ac185"
 
 # 本機預覽用，執行 wrangler kv namespace create "NEXT_CACHE_WORKERS_KV" --preview 取得
 # [[ kv_namespaces ]]
