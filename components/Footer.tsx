@@ -16,7 +16,7 @@ export default function Footer() {
         <div className="footer-top">
           <div>
             <div className="footer-logo">
-              <div className="footer-logo-dot">AG</div>
+              <img src="/site-icon.png" alt="Aimi" className="footer-logo-dot" />
               <span className="footer-logo-name">Aimi Go 分享站</span>
             </div>
             <div className="footer-bio">這裡收集了一切能讓旅途更多靈感的東西。您的支持是我繼續分享的動力。</div>

@@ -12,7 +12,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ t
       <Nav />
       <div className="home-hero">
         <div className="home-hero-inner">
-          <div className="avatar">AG</div>
+          <img src="/site-icon.png" alt="Aimi" className="avatar" />
           <div className="home-hero-text">
             <h1>Aimi Go 分享站</h1>
             <p>
