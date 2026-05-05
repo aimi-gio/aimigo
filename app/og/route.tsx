@@ -1,8 +1,6 @@
 import { ImageResponse } from 'next/og'
 import { NextRequest } from 'next/server'
 
-export const runtime = 'edge'
-
 const TYPE_BG: Record<string, string> = {
   trip: '#615559', tool: '#633A3A', template: '#5B7FA6', inspo: '#A580BB',
 }
