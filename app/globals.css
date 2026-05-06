@@ -517,6 +517,18 @@ a { text-decoration: none; color: inherit; }
 /* ── Days Grid & Timeline ───────────────────────────────────── */
 .days-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 12px; }
 @media (max-width: 600px) { .days-grid { grid-template-columns: 1fr; } }
+
+@media (max-width: 768px) {
+  .toolbar { flex-wrap: nowrap; }
+  .filter-row {
+    flex: 1; min-width: 0;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-inline: 0.5rem;
+  }
+  .filter-row::-webkit-scrollbar { display: none; }
+}
 .day-card {
   background: var(--color-surface); border: 0.5px solid var(--color-border);
   border-radius: 12px; overflow: hidden;
