@@ -136,16 +136,11 @@ export interface AboutRecord {
   type: string   // 類型 select：簡介 | 數字 | 連結
 }
 
-export async function getAboutRecords(aboutPageId: string): Promise<AboutRecord[]> {
-  const blocks = await notion.blocks.children.list({
-    block_id: toDashedId(aboutPageId),
-    page_size: 100,
-  })
-  const dbBlock = (blocks.results as any[]).find(b => b.type === 'child_database')
-  if (!dbBlock) return []
+export async function getAboutRecords(): Promise<AboutRecord[]> {
+  const dbId = process.env.NOTION_ABOUT_DB_ID ?? '358182065256808a8115d100847be973'
 
   const res = await notion.dataSources.query({
-    data_source_id: dbBlock.id.replace(/-/g, ''),
+    data_source_id: dbId,
     page_size: 100,
   } as Parameters<typeof notion.dataSources.query>[0])
 

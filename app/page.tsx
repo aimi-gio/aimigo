@@ -10,7 +10,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ t
   const { tab } = await searchParams
   const [cards, aboutRecords] = await Promise.all([
     getAllCards(),
-    getAboutRecords(ABOUT_PAGE_ID).catch(() => []),
+    getAboutRecords().catch(() => []),
   ])
   const siteDesc = (aboutRecords as any[]).find((r: any) => r.item === '全網簡介')?.desc ?? ''
 

@@ -18,7 +18,7 @@ export default async function Footer() {
   let privacyText = ''
 
   try {
-    const records = await getAboutRecords(ABOUT_PAGE_ID)
+    const records = await getAboutRecords()
     bio = records.find(r => r.item === '全網簡介')?.desc ?? bio
     privacyText = records.find(r => r.item === '隱私權聲明')?.desc ?? ''
     linkRecords = records.filter(r => r.type === '連結')

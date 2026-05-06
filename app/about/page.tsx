@@ -31,7 +31,7 @@ export default async function AboutPage() {
 
   try {
     const [recs, ph] = await Promise.all([
-      getAboutRecords(ABOUT_PAGE_ID),
+      getAboutRecords(),
       getPagePhoto(ABOUT_PAGE_ID),
     ])
     records = recs
