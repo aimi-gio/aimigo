@@ -1,12 +1,19 @@
 import Nav from '@/components/Nav'
 import HomeSections from '@/components/HomeSections'
-import { getAllCards } from '@/lib/notion'
+import { getAllCards, getAboutRecords } from '@/lib/notion'
 
 export const revalidate = 3600
 
+const ABOUT_PAGE_ID = process.env.NOTION_ABOUT_PAGE_ID ?? '34c18206525680369cb9dbe41b2be2f9'
+
 export default async function Home({ searchParams }: { searchParams: Promise<{ tab?: string }> }) {
   const { tab } = await searchParams
-  const cards = await getAllCards()
+  const [cards, aboutRecords] = await Promise.all([
+    getAllCards(),
+    getAboutRecords(ABOUT_PAGE_ID).catch(() => []),
+  ])
+  const siteDesc = (aboutRecords as any[]).find((r: any) => r.item === '全網簡介')?.desc ?? ''
+
   return (
     <>
       <Nav />
@@ -15,10 +22,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ t
           <img src="/site-icon.png" alt="Aimi" className="avatar" />
           <div className="home-hero-text">
             <h1>Aimi Go 分享站</h1>
-            <p>
-              這裡收集了一切能讓旅途更多靈感的東西<br />
-              UIUX 設計師 ／ 最近患上旅遊照拍了就一定要做成貼文強迫症
-            </p>
+            {siteDesc && <p>{siteDesc}</p>}
           </div>
         </div>
       </div>

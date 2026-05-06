@@ -129,4 +129,39 @@ export async function getPagePhoto(pageId: string): Promise<string> {
   }
 }
 
+export interface AboutRecord {
+  item: string   // 項目（標題欄位）
+  desc: string   // 說明
+  note: string   // 補充（選填）
+  type: string   // 類型 select：簡介 | 數字 | 連結
+}
+
+export async function getAboutRecords(aboutPageId: string): Promise<AboutRecord[]> {
+  const blocks = await notion.blocks.children.list({
+    block_id: toDashedId(aboutPageId),
+    page_size: 100,
+  })
+  const dbBlock = (blocks.results as any[]).find(b => b.type === 'child_database')
+  if (!dbBlock) return []
+
+  const res = await notion.dataSources.query({
+    data_source_id: dbBlock.id.replace(/-/g, ''),
+    page_size: 100,
+  } as Parameters<typeof notion.dataSources.query>[0])
+
+  const txt = (field: any): string =>
+    (field?.rich_text ?? []).map((r: any) => r.plain_text).join('').trim()
+  const ttl = (field: any): string =>
+    (field?.title ?? []).map((r: any) => r.plain_text).join('').trim()
+
+  return (res.results as any[])
+    .map((page: any) => ({
+      item: ttl(page.properties['項目']),
+      desc: txt(page.properties['說明']),
+      note: txt(page.properties['補充']),
+      type: page.properties['類型']?.select?.name ?? '',
+    }))
+    .filter(r => r.item)
+}
+
 export const revalidate = 3600

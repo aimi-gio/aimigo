@@ -1,5 +1,8 @@
 import Link from 'next/link'
 import ShareRow from './ShareRow'
+import { getAboutRecords } from '@/lib/notion'
+
+const ABOUT_PAGE_ID = process.env.NOTION_ABOUT_PAGE_ID ?? '34c18206525680369cb9dbe41b2be2f9'
 
 const ExtIcon = () => (
   <svg className="ext-icon" viewBox="0 0 12 12" fill="none" aria-hidden>
@@ -9,7 +12,18 @@ const ExtIcon = () => (
   </svg>
 )
 
-export default function Footer() {
+export default async function Footer() {
+  let bio = '這裡收集了一切能讓旅途更多靈感的東西。'
+  let linkRecords: { item: string; desc: string; note: string }[] = []
+  let privacyText = ''
+
+  try {
+    const records = await getAboutRecords(ABOUT_PAGE_ID)
+    bio = records.find(r => r.item === '全網簡介')?.desc ?? bio
+    privacyText = records.find(r => r.item === '隱私權聲明')?.desc ?? ''
+    linkRecords = records.filter(r => r.type === '連結')
+  } catch {}
+
   return (
     <footer className="footer">
       <div className="footer-inner">
@@ -19,19 +33,26 @@ export default function Footer() {
               <img src="/site-icon.png" alt="Aimi" className="footer-logo-dot" />
               <span className="footer-logo-name">Aimi Go 分享站</span>
             </div>
-            <div className="footer-bio">這裡收集了一切能讓旅途更多靈感的東西。您的支持是我繼續分享的動力。</div>
+            <div className="footer-bio">{bio}</div>
           </div>
-          <div className="footer-links">
-            <a className="footer-link" href="https://www.instagram.com/aimi.go_/" target="_blank" rel="noopener noreferrer">
-              Instagram @aimi.go_ <ExtIcon />
-            </a>
-            <a className="footer-link" href="https://www.threads.com/@aimi.go_" target="_blank" rel="noopener noreferrer">
-              Threads @aimi.go_ <ExtIcon />
-            </a>
-            <a className="footer-link" href="mailto:aimi.girr@gmail.com">
-              aimi.girr@gmail.com
-            </a>
-          </div>
+          {linkRecords.length > 0 && (
+            <div className="footer-links">
+              {linkRecords.map((r, i) => (
+                <div key={i}>
+                  <a
+                    className="footer-link"
+                    href={r.desc}
+                    target={r.desc.startsWith('mailto:') ? undefined : '_blank'}
+                    rel={r.desc.startsWith('mailto:') ? undefined : 'noopener noreferrer'}
+                  >
+                    {r.item}
+                    {!r.desc.startsWith('mailto:') && <ExtIcon />}
+                  </a>
+                  {r.note && <div className="footer-link-note">{r.note}</div>}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
         <div className="footer-nav">
           <Link href="/#section-trip">旅遊行程</Link>
@@ -43,6 +64,7 @@ export default function Footer() {
         <ShareRow />
         <div className="footer-bottom">
           <span className="footer-copy">© 2026 Aimi Go · All Rights Reserved</span>
+          {privacyText && <span className="footer-privacy">{privacyText}</span>}
         </div>
       </div>
     </footer>
