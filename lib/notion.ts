@@ -181,7 +181,7 @@ export const revalidate = 3600
 export async function getInlineLinks(blocks: any[]): Promise<ExternalLink[]> {
   // Find child_database block named "link"
   const linkDb = blocks.find(
-    b => b.type === 'child_database' && b.child_database?.title?.toLowerCase() === 'link'
+    b => b.type === 'child_database' && b.child_database?.title?.toLowerCase().trim() === 'link'
   )
   if (!linkDb) return []
 
