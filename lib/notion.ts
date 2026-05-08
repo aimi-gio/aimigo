@@ -19,7 +19,6 @@ export interface NotionCard {
   persons: string
   lastUpdated: string  // formatted as YYYY/M/D
   relatedUrl: string   // 相關入口 field URL
-  relatedTags: string[]  // 相關連結標籤 comma-separated → used to query external links DB
 }
 
 export interface ExternalLink {
@@ -73,7 +72,6 @@ function parseCard(page: any): NotionCard {
     persons: richText(p['適用人數']),
     lastUpdated: formatDate(page.last_edited_time ?? ''),
     relatedUrl: p['相關入口']?.url ?? richText(p['相關入口']),
-    relatedTags: richText(p['相關連結標籤']).split(',').map((t: string) => t.trim()).filter(Boolean),
   }
 }
 

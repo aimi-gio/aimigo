@@ -34,7 +34,7 @@ export default async function NotionDetailPage({ card, backHref, backLabel, colo
   const [rawBlocks, allSameType, externalLinks] = await Promise.all([
     getPageBlocks(card.id),
     getCardsByType(card.type),
-    getExternalLinks(card.relatedTags),
+    getExternalLinks(card.tags),
   ])
   const { content, related } = splitBlocks(flattenBlocks(rawBlocks))
   const sameTypeCards = allSameType.filter(c => c.id !== card.id).slice(0, 3)
