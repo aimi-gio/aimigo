@@ -12,7 +12,9 @@ interface CopyButtonProps {
 export default function CopyButton({ label, code, className, style }: CopyButtonProps) {
   const [copied, setCopied] = useState(false)
 
-  const handleCopy = async () => {
+  const handleCopy = async (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
     try {
       await navigator.clipboard.writeText(code)
       setCopied(true)

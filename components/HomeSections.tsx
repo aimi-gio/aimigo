@@ -166,8 +166,8 @@ export default function HomeSections({ cards, initialTab }: { cards: NotionCard[
           <div className="grid">
             {toolCards.map((card) => {
               const copy = isCopyCode(card.cta)
-              const inner = (
-                <>
+              return (
+                <Link key={card.id} href={internalHref(card)} className="card card-tool">
                   <CardImg cover={card.cover} icon={card.icon} bg="var(--color-tool-light)" fallback="🔧" />
                   <div className="card-body">
                     <div className="card-title">{card.name}</div>
@@ -177,11 +177,8 @@ export default function HomeSections({ cards, initialTab }: { cards: NotionCard[
                       : <div className="cta-btn cta-btn-tool">查看更多</div>
                     }
                   </div>
-                </>
+                </Link>
               )
-              return copy
-                ? <div key={card.id} className="card card-tool">{inner}</div>
-                : <Link key={card.id} href={internalHref(card)} className="card card-tool">{inner}</Link>
             })}
           </div>
         </div>
