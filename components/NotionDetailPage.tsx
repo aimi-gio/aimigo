@@ -156,7 +156,7 @@ export default async function NotionDetailPage({ card, backHref, backLabel, colo
               <a className={`bottom-cta bottom-cta-${variant}`} href={resolvedCtaUrl}
                 style={{ background: `var(--color-${variant})` }}
                 target="_blank" rel="noopener noreferrer">
-                <span>{ctaLabel}</span>
+                <span>點我前往主要頁面🍰</span>
               </a>
             )}
           </div>
