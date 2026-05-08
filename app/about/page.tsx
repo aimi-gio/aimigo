@@ -130,14 +130,6 @@ export default async function AboutPage() {
           </div>
         )}
 
-        <div className="about-collab">
-          歡迎品牌合作洽談，僅接受與旅遊、設計、生活風格相關、且我有興趣親自體驗的合作。
-          <br />
-          <a className="about-collab-email" href="mailto:aimi.girr@gmail.com">
-            aimi.girr@gmail.com
-          </a>
-        </div>
-
         {linkRecords.length > 0 && (
           <div className="about-links">
             {linkRecords.map((r, i) => {

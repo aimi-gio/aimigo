@@ -93,10 +93,9 @@ export default async function Footer() {
           <Link href="/#section-inspo">靈感收藏</Link>
           <Link href="/about">關於我</Link>
         </div>
-        <ShareRow />
         <div className="footer-bottom">
+          <ShareRow />
           <span className="footer-copy">© 2026 Aimi Go · All Rights Reserved</span>
-          <Link href="/sitemap.xml" className="footer-sitemap">網站地圖</Link>
         </div>
       </div>
     </footer>
