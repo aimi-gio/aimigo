@@ -4,6 +4,7 @@ interface RelatedCardProps {
   type: string
   title: string
   desc?: string
+  thumbnail?: string
   external?: boolean
 }
 
@@ -15,7 +16,7 @@ const ExtIcon = () => (
   </svg>
 )
 
-export default function RelatedCard({ href, emoji, type, title, desc, external = true }: RelatedCardProps) {
+export default function RelatedCard({ href, emoji, type, title, desc, thumbnail, external = true }: RelatedCardProps) {
   return (
     <a
       className="related-card"
@@ -24,7 +25,10 @@ export default function RelatedCard({ href, emoji, type, title, desc, external =
       rel={external ? 'noopener noreferrer' : undefined}
     >
       <div className="related-thumb">
-        <div className="related-thumb-placeholder">{emoji ?? '🔗'}</div>
+        {thumbnail
+          ? <img src={thumbnail} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+          : <div className="related-thumb-placeholder">{emoji ?? '🔗'}</div>
+        }
       </div>
       <div className="related-info">
         <div className="related-type">

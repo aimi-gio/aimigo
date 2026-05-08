@@ -1,9 +1,10 @@
 import Link from 'next/link'
-import type { NotionCard } from '@/lib/notion'
-import { getPageBlocks, getCardsByType } from '@/lib/notion'
+import type { NotionCard, ExternalLink } from '@/lib/notion'
+import { getPageBlocks, getCardsByType, getExternalLinks } from '@/lib/notion'
 import DetailNav from './DetailNav'
 import BottomCta from './BottomCta'
 import CopyButton from './CopyButton'
+import RelatedCard from './RelatedCard'
 import NotionBlocks, { flattenBlocks, splitBlocks, NotionRelated } from './NotionBlocks'
 
 interface Props {
@@ -22,10 +23,18 @@ const TYPE_SLUG: Record<string, string> = {
   '旅遊行程': 'trip', '好用工具': 'tool', '通用模板': 'template', '靈感收藏': 'inspo',
 }
 
+function sourceEmoji(source: string): string {
+  if (source === 'Instagram') return '📸'
+  if (source === 'YouTube') return '▶️'
+  if (source === '部落格') return '📝'
+  return '🔗'
+}
+
 export default async function NotionDetailPage({ card, backHref, backLabel, colorVar, variant }: Props) {
-  const [rawBlocks, allSameType] = await Promise.all([
+  const [rawBlocks, allSameType, externalLinks] = await Promise.all([
     getPageBlocks(card.id),
     getCardsByType(card.type),
+    getExternalLinks(card.relatedTags),
   ])
   const { content, related } = splitBlocks(flattenBlocks(rawBlocks))
   const sameTypeCards = allSameType.filter(c => c.id !== card.id).slice(0, 3)
@@ -131,7 +140,26 @@ export default async function NotionDetailPage({ card, backHref, backLabel, colo
           </div>
         )}
 
-        <NotionRelated blocks={related} />
+        {externalLinks.length > 0 ? (
+          <>
+            <div className="section-title">相關內容 · 網址</div>
+            <div className="related">
+              {externalLinks.map((l: ExternalLink) => (
+                <RelatedCard
+                  key={l.id}
+                  href={l.url}
+                  title={l.name}
+                  type={l.source}
+                  emoji={sourceEmoji(l.source)}
+                  thumbnail={l.thumbnail}
+                  desc={l.desc || undefined}
+                />
+              ))}
+            </div>
+          </>
+        ) : (
+          <NotionRelated blocks={related} />
+        )}
 
         {(igGated || code || extUrl) && (
           <div className="inline-cta">

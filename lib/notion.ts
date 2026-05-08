@@ -19,6 +19,17 @@ export interface NotionCard {
   persons: string
   lastUpdated: string  // formatted as YYYY/M/D
   relatedUrl: string   // 相關入口 field URL
+  relatedTags: string[]  // 相關連結標籤 comma-separated → used to query external links DB
+}
+
+export interface ExternalLink {
+  id: string
+  name: string
+  url: string
+  thumbnail: string
+  source: string   // Instagram | YouTube | 外部網站 | 部落格
+  desc: string
+  tags: string[]
 }
 
 function richText(field: unknown): string {
@@ -62,6 +73,7 @@ function parseCard(page: any): NotionCard {
     persons: richText(p['適用人數']),
     lastUpdated: formatDate(page.last_edited_time ?? ''),
     relatedUrl: p['相關入口']?.url ?? richText(p['相關入口']),
+    relatedTags: richText(p['相關連結標籤']).split(',').map((t: string) => t.trim()).filter(Boolean),
   }
 }
 
@@ -167,3 +179,39 @@ export async function getAboutRecords(): Promise<AboutRecord[]> {
 }
 
 export const revalidate = 3600
+
+export async function getExternalLinks(tags: string[]): Promise<ExternalLink[]> {
+  const dbId = process.env.NOTION_LINKS_DATABASE_ID
+  if (!dbId || tags.length === 0) return []
+
+  const filter = tags.length === 1
+    ? { property: '標籤', multi_select: { contains: tags[0] } }
+    : { or: tags.map(t => ({ property: '標籤', multi_select: { contains: t } })) }
+
+  const resp = await fetch(`https://api.notion.com/v1/databases/${toDashedId(dbId)}/query`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${process.env.NOTION_API_KEY}`,
+      'Notion-Version': '2022-06-28',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ filter, page_size: 20 }),
+    next: { revalidate: 3600 },
+  })
+  const res = await resp.json()
+
+  return (res.results ?? []).map((page: any) => {
+    const p = page.properties
+    const files = p['縮圖']?.files ?? []
+    const thumbnail = files[0] ? parseFileUrl(files[0]) : ''
+    return {
+      id: page.id.replace(/-/g, ''),
+      name: p['名稱']?.title?.[0]?.plain_text?.trim() ?? '',
+      url: p['網址']?.url ?? '',
+      thumbnail,
+      source: p['來源']?.select?.name ?? '外部網站',
+      desc: p['簡介']?.rich_text?.[0]?.plain_text?.trim() ?? '',
+      tags: p['標籤']?.multi_select?.map((t: any) => t.name) ?? [],
+    } as ExternalLink
+  }).filter((l: ExternalLink) => l.name && l.url)
+}
