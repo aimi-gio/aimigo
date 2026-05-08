@@ -632,6 +632,12 @@ a { text-decoration: none; color: inherit; }
   border-left: 3px solid var(--color-border); background: var(--color-primary-light);
   border-radius: 0 8px 8px 0;
 }
+.inline-cta {
+  margin: 2rem 0;
+  padding: 1.75rem 0;
+  border-top: 0.5px solid var(--color-border);
+  border-bottom: 0.5px solid var(--color-border);
+}
 
 /* ── Reward Box (shopback) ──────────────────────────────────── */
 .reward-box {

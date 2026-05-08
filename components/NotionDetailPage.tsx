@@ -131,16 +131,29 @@ export default async function NotionDetailPage({ card, backHref, backLabel, colo
           </div>
         )}
 
-        {code && (
-          <div className="note-box" style={{ marginTop: '1.25rem' }}>
-            <p>複製下方邀請碼，於 App 安裝或註冊時輸入即可享有優惠。</p>
-            <div style={{ marginTop: '1rem' }}>
-              <CopyButton label="複製邀請碼" code={extractCode(card.cta)} />
-            </div>
+        <NotionRelated blocks={related} />
+
+        {(igGated || code || extUrl) && (
+          <div className="inline-cta">
+            {igGated && (
+              <a className="bottom-cta bottom-cta-ig" href={igCtaHref} target="_blank" rel="noopener noreferrer">
+                <span>前往指定貼文領取行程</span>
+              </a>
+            )}
+            {code && (
+              <CopyButton label="複製邀請碼" code={extractCode(card.cta)}
+                className={`bottom-cta bottom-cta-${variant}`}
+                style={{ background: `var(--color-${variant})` }} />
+            )}
+            {!igGated && extUrl && (
+              <a className={`bottom-cta bottom-cta-${variant}`} href={resolvedCtaUrl}
+                style={{ background: `var(--color-${variant})` }}
+                target="_blank" rel="noopener noreferrer">
+                <span>{ctaLabel}</span>
+              </a>
+            )}
           </div>
         )}
-
-        <NotionRelated blocks={related} />
 
         {sameTypeCards.length > 0 && (
           <>
@@ -157,23 +170,8 @@ export default async function NotionDetailPage({ card, backHref, backLabel, colo
         )}
       </div>
 
-      {igGated && (
-        <BottomCta href={igCtaHref} label="前往指定貼文領取行程"
-          variant="ig" external moreHref={backHref} moreLabel={`看更多${backLabel}`} />
-      )}
-      {code && (
-        <BottomCta href="" label="複製邀請碼" copyCode={extractCode(card.cta)}
-          variant={variant} moreHref={backHref} moreLabel={`看更多${backLabel}`} />
-      )}
-      {extUrl && (
-        <BottomCta href={resolvedCtaUrl} label={ctaLabel}
-          variant={variant} external
-          moreHref={backHref} moreLabel={`看更多${backLabel}`} />
-      )}
-      {!igGated && !code && !extUrl && (
-        <BottomCta href={backHref} label="" hideButton
-          variant={variant} moreHref={backHref} moreLabel={`看更多${backLabel}`} />
-      )}
+      <BottomCta href={backHref} label="" hideButton
+        variant={variant} moreHref={backHref} moreLabel={`看更多${backLabel}`} />
     </>
   )
 }
