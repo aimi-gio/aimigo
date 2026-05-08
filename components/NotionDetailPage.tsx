@@ -14,7 +14,8 @@ interface Props {
   variant: 'trip' | 'tool' | 'template' | 'inspo'
 }
 
-function isInviteCode(cta: string) { return /^[A-Z0-9]{6,10}$/.test(cta) }
+function isCopyCode(cta: string) { return cta.startsWith('複製:') }
+function extractCode(cta: string) { return cta.replace(/^複製:/, '') }
 function isExternalUrl(cta: string) { return cta.startsWith('http') }
 
 const TYPE_SLUG: Record<string, string> = {
@@ -42,9 +43,9 @@ export default async function NotionDetailPage({ card, backHref, backLabel, colo
   })()
   const resolvedCtaUrl = isExternalUrl(card.cta) ? card.cta : card.ctaUrl
   const extUrl = !igGated && !!resolvedCtaUrl
-  const ctaLabel = (!isExternalUrl(card.cta) && card.cta && !card.cta.startsWith('ig:') && !isInviteCode(card.cta))
+  const ctaLabel = (!isExternalUrl(card.cta) && card.cta && !card.cta.startsWith('ig:') && !isCopyCode(card.cta))
     ? card.cta : '查看更多'
-  const code = isInviteCode(card.cta)
+  const code = isCopyCode(card.cta)
   const contentTags = card.tags.filter(t => !['IG 粉絲限定', '行程分享'].includes(t))
 
   return (
@@ -134,7 +135,7 @@ export default async function NotionDetailPage({ card, backHref, backLabel, colo
           <div className="note-box" style={{ marginTop: '1.25rem' }}>
             <p>複製下方邀請碼，於 App 安裝或註冊時輸入即可享有優惠。</p>
             <div style={{ marginTop: '1rem' }}>
-              <CopyButton label="複製邀請碼" code={card.cta} />
+              <CopyButton label="複製邀請碼" code={extractCode(card.cta)} />
             </div>
           </div>
         )}
