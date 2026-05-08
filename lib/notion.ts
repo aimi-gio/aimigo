@@ -137,12 +137,19 @@ export interface AboutRecord {
 }
 
 export async function getAboutRecords(): Promise<AboutRecord[]> {
-  const dbId = process.env.NOTION_ABOUT_DB_ID ?? '358182065256808a8115d100847be973'
+  const dbId = toDashedId(process.env.NOTION_ABOUT_DB_ID ?? '358182065256808a8115d100847be973')
 
-  const res = await notion.dataSources.query({
-    data_source_id: dbId,
-    page_size: 100,
-  } as Parameters<typeof notion.dataSources.query>[0])
+  const resp = await fetch(`https://api.notion.com/v1/databases/${dbId}/query`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${process.env.NOTION_API_KEY}`,
+      'Notion-Version': '2022-06-28',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ page_size: 100 }),
+    next: { revalidate: 3600 },
+  })
+  const res = await resp.json()
 
   const txt = (field: any): string =>
     (field?.rich_text ?? []).map((r: any) => r.plain_text).join('').trim()
