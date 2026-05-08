@@ -26,7 +26,9 @@ export default function SmoothDetails({ summary, children, defaultOpen = false, 
         <span>{summary}</span>
       </div>
       <div className="sd-body">
-        <div className="sd-body-inner">{children}</div>
+        <div className="sd-body-inner">
+          <div className="sd-body-content">{children}</div>
+        </div>
       </div>
     </div>
   )

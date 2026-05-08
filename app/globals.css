@@ -362,7 +362,8 @@ a { text-decoration: none; color: inherit; }
   transition: grid-template-rows 0.28s cubic-bezier(0.4,0,0.2,1);
 }
 .smooth-details.is-open .sd-body { grid-template-rows: 1fr; }
-.smooth-details .sd-body-inner { overflow: hidden; padding: 0 14px 12px 40px; }
+.smooth-details .sd-body-inner { overflow: hidden; }
+.smooth-details .sd-body-content { padding: 0 14px 12px 40px; }
 .smooth-details .sd-trigger {
   display: flex; align-items: center; justify-content: flex-start;
   padding: 12px 14px; cursor: pointer;
@@ -905,7 +906,7 @@ a { text-decoration: none; color: inherit; }
 .about-collab-email:hover { text-decoration: underline; }
 
 .about-faq { display: flex; flex-direction: column; gap: 6px; margin-bottom: 2rem; }
-.about-faq .sd-body-inner {
+.about-faq .sd-body-content {
   font-size: 13px; color: var(--color-text-secondary); line-height: 1.7;
 }
-.about-faq .sd-body-inner p { margin-bottom: 0; }
+.about-faq .sd-body-content p { margin-bottom: 0; }
