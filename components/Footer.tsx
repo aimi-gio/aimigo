@@ -59,13 +59,11 @@ export default async function Footer() {
     <footer className="footer">
       <div className="footer-inner">
         <div className="footer-top">
-          <div>
-            <div className="footer-logo">
-              <img src="/site-icon.png" alt="Aimi" className="footer-logo-dot" />
-              <span className="footer-logo-name">Aimi Go 分享站</span>
-            </div>
-            <div className="footer-bio">{bio}</div>
+          <div className="footer-logo">
+            <img src="/site-icon.png" alt="Aimi" className="footer-logo-dot" />
+            <span className="footer-logo-name">Aimi Go 分享站</span>
           </div>
+          <div className="footer-bio">{bio}</div>
           {linkRecords.length > 0 && (
             <div className="footer-icon-links">
               {linkRecords.map((r, i) => {

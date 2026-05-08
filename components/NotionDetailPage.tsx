@@ -57,19 +57,18 @@ export default async function NotionDetailPage({ card, backHref, backLabel, colo
           : <div className="hero-emoji">{card.icon || '✨'}</div>
         }
         <div className="hero-overlay">
+          <nav className="hero-crumb" aria-label="breadcrumb">
+            <Link href="/" className="hero-crumb-link">首頁</Link>
+            <span className="hero-crumb-sep">›</span>
+            <Link href={backHref} className="hero-crumb-link">{backLabel}</Link>
+            <span className="hero-crumb-sep">›</span>
+            <span className="hero-crumb-current">{card.name}</span>
+          </nav>
           <div className="hero-title">{card.name}</div>
         </div>
       </div>
 
       <div className="content">
-        <nav className="breadcrumb" aria-label="breadcrumb">
-          <Link href="/" className="breadcrumb-link">首頁</Link>
-          <span className="breadcrumb-sep">›</span>
-          <Link href={backHref} className="breadcrumb-link">{backLabel}</Link>
-          <span className="breadcrumb-sep">›</span>
-          <span className="breadcrumb-current">{card.name}</span>
-        </nav>
-
         <div className="post-header">
           <div className="tag-row">
             <span className="tag tag-category">{card.type}</span>
