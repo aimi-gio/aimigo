@@ -2,25 +2,56 @@ import Link from 'next/link'
 import ShareRow from './ShareRow'
 import { getAboutRecords } from '@/lib/notion'
 
-const ABOUT_PAGE_ID = process.env.NOTION_ABOUT_PAGE_ID ?? '34c18206525680369cb9dbe41b2be2f9'
-
-const ExtIcon = () => (
-  <svg className="ext-icon" viewBox="0 0 12 12" fill="none" aria-hidden>
-    <path d="M6.5 1.5H10.5V5.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M10.5 1.5L5.5 6.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
-    <path d="M5 2.5H2C1.72 2.5 1.5 2.72 1.5 3V10C1.5 10.28 1.72 10.5 2 10.5H9C9.28 10.5 9.5 10.28 9.5 10V7" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+const IconInsta = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <rect x="2" y="2" width="20" height="20" rx="5"/>
+    <circle cx="12" cy="12" r="5"/>
+    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" strokeWidth="2.5"/>
   </svg>
 )
+
+const IconThreads = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <circle cx="12" cy="12" r="4"/>
+    <path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.92 7.94"/>
+  </svg>
+)
+
+const IconEmail = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <rect x="2" y="4" width="20" height="16" rx="2"/>
+    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+  </svg>
+)
+
+const IconGlobe = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <circle cx="12" cy="12" r="10"/>
+    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+    <path d="M2 12h20"/>
+  </svg>
+)
+
+function getLinkIcon(item: string) {
+  if (item === 'Instagram') return <IconInsta />
+  if (item === 'Threads') return <IconThreads />
+  if (item === '聯絡信箱') return <IconEmail />
+  return <IconGlobe />
+}
+
+function getLinkHref(desc: string) {
+  if (desc.startsWith('http') || desc.startsWith('mailto:')) return desc
+  if (desc.includes('@') && !desc.includes('/')) return `mailto:${desc}`
+  return desc
+}
 
 export default async function Footer() {
   let bio = '這裡收集了一切能讓旅途更多靈感的東西。'
   let linkRecords: { item: string; desc: string; note: string }[] = []
-  let privacyText = ''
 
   try {
     const records = await getAboutRecords()
     bio = records.find(r => r.item === '全網簡介')?.desc ?? bio
-    privacyText = records.find(r => r.item === '隱私權聲明')?.desc ?? ''
     linkRecords = records.filter(r => r.type === '連結')
   } catch {}
 
@@ -36,21 +67,22 @@ export default async function Footer() {
             <div className="footer-bio">{bio}</div>
           </div>
           {linkRecords.length > 0 && (
-            <div className="footer-links">
-              {linkRecords.map((r, i) => (
-                <div key={i}>
+            <div className="footer-icon-links">
+              {linkRecords.map((r, i) => {
+                const href = getLinkHref(r.desc)
+                return (
                   <a
-                    className="footer-link"
-                    href={r.desc}
-                    target={r.desc.startsWith('mailto:') ? undefined : '_blank'}
-                    rel={r.desc.startsWith('mailto:') ? undefined : 'noopener noreferrer'}
+                    key={i}
+                    className="footer-icon-link"
+                    href={href}
+                    title={r.item}
+                    target={href.startsWith('mailto:') ? undefined : '_blank'}
+                    rel={href.startsWith('mailto:') ? undefined : 'noopener noreferrer'}
                   >
-                    {r.item}
-                    {!r.desc.startsWith('mailto:') && <ExtIcon />}
+                    {getLinkIcon(r.item)}
                   </a>
-                  {r.note && <div className="footer-link-note">{r.note}</div>}
-                </div>
-              ))}
+                )
+              })}
             </div>
           )}
         </div>
@@ -64,7 +96,7 @@ export default async function Footer() {
         <ShareRow />
         <div className="footer-bottom">
           <span className="footer-copy">© 2026 Aimi Go · All Rights Reserved</span>
-          {privacyText && <span className="footer-privacy">{privacyText}</span>}
+          <Link href="/sitemap.xml" className="footer-sitemap">網站地圖</Link>
         </div>
       </div>
     </footer>
