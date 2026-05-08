@@ -140,27 +140,6 @@ export default async function NotionDetailPage({ card, backHref, backLabel, colo
           </div>
         )}
 
-        {externalLinks.length > 0 ? (
-          <>
-            <div className="section-title">相關內容 · 網址</div>
-            <div className="related">
-              {externalLinks.map((l: ExternalLink) => (
-                <RelatedCard
-                  key={l.id}
-                  href={l.url}
-                  title={l.name}
-                  type={l.source}
-                  emoji={sourceEmoji(l.source)}
-                  thumbnail={l.thumbnail}
-                  desc={l.desc || undefined}
-                />
-              ))}
-            </div>
-          </>
-        ) : (
-          <NotionRelated blocks={related} />
-        )}
-
         {(igGated || code || extUrl) && (
           <div className="inline-cta">
             {igGated && (
@@ -183,8 +162,31 @@ export default async function NotionDetailPage({ card, backHref, backLabel, colo
           </div>
         )}
 
+        {externalLinks.length > 0 ? (
+          <>
+            <div className="section-title">相關內容 · 網址</div>
+            <div className="related">
+              {externalLinks.map((l: ExternalLink) => (
+                <RelatedCard
+                  key={l.id}
+                  href={l.url}
+                  title={l.name}
+                  type={l.source}
+                  emoji={sourceEmoji(l.source)}
+                  thumbnail={l.thumbnail}
+                  desc={l.desc || undefined}
+                  colorVar={colorVar}
+                />
+              ))}
+            </div>
+          </>
+        ) : (
+          <NotionRelated blocks={related} />
+        )}
+
         {sameTypeCards.length > 0 && (
           <>
+            <div className="section-sep" />
             <div className="section-title">更多{card.type}</div>
             <div className="related-notion-cards">
               {sameTypeCards.map(c => (
