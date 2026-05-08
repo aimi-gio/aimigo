@@ -23,6 +23,13 @@ const TYPE_SLUG: Record<string, string> = {
   '旅遊行程': 'trip', '好用工具': 'tool', '通用模板': 'template', '靈感收藏': 'inspo',
 }
 
+const VARIANT_CTA: Record<string, string> = {
+  trip: '查看完整行程安排(๑•̀ㅂ•́)و✧ 🎁',
+  tool: '用我的連結薅羊毛 (ﾉ>ω<)ﾉ 💰',
+  template: '免費複製這份模板٩(◕‿◕)۶📋',
+  inspo: '看完整靈感筆記(◍•ᴗ•◍)✨',
+}
+
 function sourceEmoji(source: string): string {
   if (source === 'Instagram') return '📸'
   if (source === 'YouTube') return '▶️'
@@ -52,8 +59,9 @@ export default async function NotionDetailPage({ card, backHref, backLabel, colo
   })()
   const resolvedCtaUrl = isExternalUrl(card.cta) ? card.cta : card.ctaUrl
   const extUrl = !igGated && !!resolvedCtaUrl
-  const ctaLabel = (!isExternalUrl(card.cta) && card.cta && !card.cta.startsWith('ig:') && !isCopyCode(card.cta))
-    ? card.cta : '查看更多'
+  const customCtaText = (!isExternalUrl(card.cta) && card.cta && !card.cta.startsWith('ig:') && !isCopyCode(card.cta))
+    ? card.cta : ''
+  const ctaLabel = customCtaText || VARIANT_CTA[variant] || '查看更多'
   const code = isCopyCode(card.cta)
   const contentTags = card.tags.filter(t => !['IG 粉絲限定', '行程分享'].includes(t))
 
@@ -135,7 +143,7 @@ export default async function NotionDetailPage({ card, backHref, backLabel, colo
               <div className="ig-step"><div className="ig-step-num">3</div><div className="ig-step-sub">取得 Notion 行程連結</div></div>
             </div>
             <a className="ig-btn" href={igCtaHref} target="_blank" rel="noopener noreferrer">
-              前往指定貼文領取行程
+              前往指定貼文領取行程 📩
             </a>
           </div>
         )}
@@ -144,7 +152,7 @@ export default async function NotionDetailPage({ card, backHref, backLabel, colo
           <div className="inline-cta">
             {igGated && (
               <a className="bottom-cta bottom-cta-ig" href={igCtaHref} target="_blank" rel="noopener noreferrer">
-                <span>前往指定貼文領取行程</span>
+                <span>前往指定貼文領取行程 📩</span>
               </a>
             )}
             {code && (
@@ -156,7 +164,7 @@ export default async function NotionDetailPage({ card, backHref, backLabel, colo
               <a className={`bottom-cta bottom-cta-${variant}`} href={resolvedCtaUrl}
                 style={{ background: `var(--color-${variant})` }}
                 target="_blank" rel="noopener noreferrer">
-                <span>點我前往主要頁面🍰</span>
+                <span>{ctaLabel}</span>
               </a>
             )}
           </div>
