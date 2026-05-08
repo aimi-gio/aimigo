@@ -59,9 +59,7 @@ export default async function NotionDetailPage({ card, backHref, backLabel, colo
   })()
   const resolvedCtaUrl = isExternalUrl(card.cta) ? card.cta : card.ctaUrl
   const extUrl = !igGated && !!resolvedCtaUrl
-  const customCtaText = (!isExternalUrl(card.cta) && card.cta && !card.cta.startsWith('ig:') && !isCopyCode(card.cta))
-    ? card.cta : ''
-  const ctaLabel = customCtaText || VARIANT_CTA[variant] || '查看更多'
+  const ctaLabel = VARIANT_CTA[variant] || '查看更多'
   const code = isCopyCode(card.cta)
   const contentTags = card.tags.filter(t => !['IG 粉絲限定', '行程分享'].includes(t))
 
