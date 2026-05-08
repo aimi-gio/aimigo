@@ -22,8 +22,8 @@ export default function SmoothDetails({ summary, children, defaultOpen = false, 
     <div className={`smooth-details${open ? ' is-open' : ''} ${className}`}>
       <div className="sd-trigger" onClick={() => setOpen(!open)} role="button" tabIndex={0}
         onKeyDown={(e) => e.key === 'Enter' && setOpen(!open)}>
-        {summary}
         <Chevron />
+        <span>{summary}</span>
       </div>
       <div className="sd-body">
         <div className="sd-body-inner">{children}</div>

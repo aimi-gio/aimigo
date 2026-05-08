@@ -64,7 +64,6 @@ export default async function NotionDetailPage({ card, backHref, backLabel, colo
             <span className="hero-crumb-sep">›</span>
             <span className="hero-crumb-current">{card.name}</span>
           </nav>
-          <div className="hero-title">{card.name}</div>
         </div>
       </div>
 
