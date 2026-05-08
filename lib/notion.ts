@@ -183,8 +183,8 @@ export async function getExternalLinks(tags: string[]): Promise<ExternalLink[]> 
   if (!dbId || tags.length === 0) return []
 
   const filter = tags.length === 1
-    ? { property: '標籤', multi_select: { contains: tags[0] } }
-    : { or: tags.map(t => ({ property: '標籤', multi_select: { contains: t } })) }
+    ? { property: '標籤', rich_text: { contains: tags[0] } }
+    : { or: tags.map(t => ({ property: '標籤', rich_text: { contains: t } })) }
 
   const resp = await fetch(`https://api.notion.com/v1/databases/${toDashedId(dbId)}/query`, {
     method: 'POST',
@@ -209,7 +209,7 @@ export async function getExternalLinks(tags: string[]): Promise<ExternalLink[]> 
       thumbnail,
       source: p['來源']?.select?.name ?? '外部網站',
       desc: p['簡介']?.rich_text?.[0]?.plain_text?.trim() ?? '',
-      tags: p['標籤']?.multi_select?.map((t: any) => t.name) ?? [],
+      tags: (p['標籤']?.rich_text?.[0]?.plain_text ?? '').split(',').map((t: string) => t.trim()).filter(Boolean),
     } as ExternalLink
   }).filter((l: ExternalLink) => l.name && l.url)
 }
