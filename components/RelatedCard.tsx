@@ -1,3 +1,5 @@
+import type { CSSProperties } from 'react'
+
 interface RelatedCardProps {
   href: string
   emoji?: string
@@ -7,6 +9,18 @@ interface RelatedCardProps {
   thumbnail?: string
   external?: boolean
   colorVar?: string
+}
+
+function sourceStyle(source: string): CSSProperties {
+  if (source === 'Instagram') return {
+    background: 'linear-gradient(45deg, #833ab4, #fd1d1d, #fcb045)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    backgroundClip: 'text',
+  }
+  if (source === 'Threads') return { color: '#000000' }
+  if (source === 'YouTube') return { color: '#FF0000' }
+  return {}
 }
 
 function thumbBg(source: string, colorVar?: string): string {
@@ -33,7 +47,7 @@ export default function RelatedCard({ href, emoji, type, title, desc, thumbnail,
         }
       </div>
       <div className="related-info">
-        <div className="related-type">{type}</div>
+        <div className="related-type" style={sourceStyle(type)}>{type}</div>
         <div className="related-title">{title}</div>
         {desc && <div className="related-desc">{desc}</div>}
       </div>
