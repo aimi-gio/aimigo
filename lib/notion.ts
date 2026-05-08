@@ -178,38 +178,59 @@ export async function getAboutRecords(): Promise<AboutRecord[]> {
 
 export const revalidate = 3600
 
-export async function getExternalLinks(tags: string[]): Promise<ExternalLink[]> {
-  const dbId = process.env.NOTION_LINKS_DATABASE_ID
-  if (!dbId || tags.length === 0) return []
+export async function getInlineLinks(blocks: any[]): Promise<ExternalLink[]> {
+  // Find child_database block named "link"
+  const linkDb = blocks.find(
+    b => b.type === 'child_database' && b.child_database?.title?.toLowerCase() === 'link'
+  )
+  if (!linkDb) return []
 
-  const filter = tags.length === 1
-    ? { property: '標籤', rich_text: { contains: tags[0] } }
-    : { or: tags.map(t => ({ property: '標籤', rich_text: { contains: t } })) }
-
-  const resp = await fetch(`https://api.notion.com/v1/databases/${toDashedId(dbId)}/query`, {
+  // Query the inline database
+  const dbResp = await fetch(`https://api.notion.com/v1/databases/${linkDb.id}/query`, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${process.env.NOTION_API_KEY}`,
       'Notion-Version': '2022-06-28',
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ filter, page_size: 20 }),
+    body: JSON.stringify({ page_size: 20 }),
     next: { revalidate: 3600 },
   })
-  const res = await resp.json()
+  const dbData = await dbResp.json()
 
-  return (res.results ?? []).map((page: any) => {
-    const p = page.properties
-    const files = p['縮圖']?.files ?? []
-    const thumbnail = files[0] ? parseFileUrl(files[0]) : ''
-    return {
-      id: page.id.replace(/-/g, ''),
-      name: p['名稱']?.title?.[0]?.plain_text?.trim() ?? '',
-      url: p['網址']?.url ?? '',
-      thumbnail,
-      source: p['來源']?.select?.name ?? '外部網站',
-      desc: p['簡介']?.rich_text?.[0]?.plain_text?.trim() ?? '',
-      tags: (p['標籤']?.rich_text?.[0]?.plain_text ?? '').split(',').map((t: string) => t.trim()).filter(Boolean),
-    } as ExternalLink
-  }).filter((l: ExternalLink) => l.name && l.url)
+  // Collect all relation IDs across all entries and relation properties
+  const relationIds: string[] = []
+  for (const page of dbData.results ?? []) {
+    for (const val of Object.values(page.properties ?? {})) {
+      const v = val as any
+      if (v.type === 'relation') {
+        for (const rel of v.relation ?? []) {
+          if (rel.id && !relationIds.includes(rel.id)) relationIds.push(rel.id)
+        }
+      }
+    }
+  }
+  if (relationIds.length === 0) return []
+
+  // Fetch each linked external link page in parallel
+  const links = await Promise.all(
+    relationIds.map(async (id) => {
+      try {
+        const page = await notion.pages.retrieve({ page_id: id }) as any
+        const p = page.properties
+        const files = p['縮圖']?.files ?? []
+        return {
+          id: page.id.replace(/-/g, ''),
+          name: p['名稱']?.title?.[0]?.plain_text?.trim() ?? '',
+          url: p['網址']?.url ?? '',
+          thumbnail: files[0] ? parseFileUrl(files[0]) : '',
+          source: p['來源']?.select?.name ?? '外部網站',
+          desc: p['簡介']?.rich_text?.[0]?.plain_text?.trim() ?? '',
+          tags: [],
+        } as ExternalLink
+      } catch { return null }
+    })
+  )
+
+  return links.filter((l): l is ExternalLink => l !== null && !!l.name && !!l.url)
 }

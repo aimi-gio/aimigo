@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import type { NotionCard, ExternalLink } from '@/lib/notion'
-import { getPageBlocks, getCardsByType, getExternalLinks } from '@/lib/notion'
+import { getPageBlocks, getCardsByType, getInlineLinks } from '@/lib/notion'
 import DetailNav from './DetailNav'
 import BottomCta from './BottomCta'
 import CopyButton from './CopyButton'
@@ -31,11 +31,11 @@ function sourceEmoji(source: string): string {
 }
 
 export default async function NotionDetailPage({ card, backHref, backLabel, colorVar, variant }: Props) {
-  const [rawBlocks, allSameType, externalLinks] = await Promise.all([
+  const [rawBlocks, allSameType] = await Promise.all([
     getPageBlocks(card.id),
     getCardsByType(card.type),
-    getExternalLinks(card.tags),
   ])
+  const externalLinks = await getInlineLinks(rawBlocks)
   const { content, related } = splitBlocks(flattenBlocks(rawBlocks))
   const sameTypeCards = allSameType.filter(c => c.id !== card.id).slice(0, 3)
   const typeSlug = TYPE_SLUG[card.type] ?? variant
