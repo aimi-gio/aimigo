@@ -15,8 +15,8 @@ const TYPE_SLUG: Record<string, string> = {
 }
 
 // CTA format helpers
-function isCopyCode(cta: string) { return cta.startsWith('複製:') }
-function extractCode(cta: string) { return cta.replace(/^複製:/, '') }
+function isCopyCode(cta: string) { return /^複製[：:]/.test(cta) }
+function extractCode(cta: string) { return cta.replace(/^複製[：:]/, '') }
 function isExternalUrl(cta: string) { return cta.startsWith('http') }
 function isIgLimited(cta: string) { return cta.startsWith('ig:') }
 function isComingSoon(cta: string) { return cta === '佛系整理中' }

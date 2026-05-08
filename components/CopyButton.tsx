@@ -5,9 +5,11 @@ import { useState } from 'react'
 interface CopyButtonProps {
   label: string
   code: string
+  className?: string
+  style?: React.CSSProperties
 }
 
-export default function CopyButton({ label, code }: CopyButtonProps) {
+export default function CopyButton({ label, code, className, style }: CopyButtonProps) {
   const [copied, setCopied] = useState(false)
 
   const handleCopy = async () => {
@@ -15,13 +17,11 @@ export default function CopyButton({ label, code }: CopyButtonProps) {
       await navigator.clipboard.writeText(code)
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
-    } catch {
-      // fallback for older browsers
-    }
+    } catch {}
   }
 
   return (
-    <button className="cta-btn cta-btn-tool copy-btn" onClick={handleCopy}>
+    <button className={className ?? 'cta-btn cta-btn-tool copy-btn'} style={style} onClick={handleCopy}>
       {label}{' '}
       <span className={`copy-badge${copied ? ' bounce' : ''}`}>
         {copied ? '已複製！' : code}

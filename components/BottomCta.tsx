@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import CopyButton from './CopyButton'
 
 const ExtIcon = () => (
   <svg style={{ width: 14, height: 14, flexShrink: 0 }} viewBox="0 0 12 12" fill="none" aria-hidden>
@@ -22,15 +23,20 @@ interface BottomCtaProps {
   moreHref?: string
   moreLabel?: string
   hideButton?: boolean
+  copyCode?: string
 }
 
-export default function BottomCta({ href, label, variant = 'trip', external = false, moreHref, moreLabel, hideButton = false }: BottomCtaProps) {
+export default function BottomCta({ href, label, variant = 'trip', external = false, moreHref, moreLabel, hideButton = false, copyCode }: BottomCtaProps) {
   const variantClass = variant === 'ig' ? 'bottom-cta-ig' : `bottom-cta-${variant}`
   const ctaStyle = variant !== 'ig' ? { background: `var(--color-${variant})` } : {}
 
   return (
     <>
-      {!hideButton && (
+      {copyCode ? (
+        <div className="bottom-cta-wrap">
+          <CopyButton label={label} code={copyCode} className={`bottom-cta ${variantClass}`} style={ctaStyle} />
+        </div>
+      ) : !hideButton && (
         <div className="bottom-cta-wrap">
           {external ? (
             <a href={href} target="_blank" rel="noopener noreferrer"

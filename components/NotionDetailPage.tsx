@@ -14,8 +14,8 @@ interface Props {
   variant: 'trip' | 'tool' | 'template' | 'inspo'
 }
 
-function isCopyCode(cta: string) { return cta.startsWith('複製:') }
-function extractCode(cta: string) { return cta.replace(/^複製:/, '') }
+function isCopyCode(cta: string) { return /^複製[：:]/.test(cta) }
+function extractCode(cta: string) { return cta.replace(/^複製[：:]/, '') }
 function isExternalUrl(cta: string) { return cta.startsWith('http') }
 
 const TYPE_SLUG: Record<string, string> = {
@@ -161,12 +161,16 @@ export default async function NotionDetailPage({ card, backHref, backLabel, colo
         <BottomCta href={igCtaHref} label="前往指定貼文領取行程"
           variant="ig" external moreHref={backHref} moreLabel={`看更多${backLabel}`} />
       )}
+      {code && (
+        <BottomCta href="" label="複製邀請碼" copyCode={extractCode(card.cta)}
+          variant={variant} moreHref={backHref} moreLabel={`看更多${backLabel}`} />
+      )}
       {extUrl && (
         <BottomCta href={resolvedCtaUrl} label={ctaLabel}
           variant={variant} external
           moreHref={backHref} moreLabel={`看更多${backLabel}`} />
       )}
-      {!igGated && !extUrl && (
+      {!igGated && !code && !extUrl && (
         <BottomCta href={backHref} label="" hideButton
           variant={variant} moreHref={backHref} moreLabel={`看更多${backLabel}`} />
       )}
