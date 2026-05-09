@@ -139,11 +139,10 @@ function Block({ block }: { block: any }) {
     case 'embed': {
       const raw = block.embed?.url
       if (!raw) return null
-      // Google Docs/Sheets/Slides edit URLs can't be iframed; convert to /preview
-      const url = raw.replace(
-        /^(https:\/\/docs\.google\.com\/(?:spreadsheets|document|presentation)\/d\/[^/]+)\/(?:edit|view)[^"]*/,
-        '$1/preview'
-      )
+      // Sheets → /htmlview；Docs/Slides → /preview
+      const url = raw
+        .replace(/^(https:\/\/docs\.google\.com\/spreadsheets\/d\/[^/]+)\/[^?#]*.*/, '$1/htmlview')
+        .replace(/^(https:\/\/docs\.google\.com\/(?:document|presentation)\/d\/[^/]+)\/[^?#]*.*/, '$1/preview')
       return (
         <div style={{ margin: '1.25rem 0', borderRadius: 8, overflow: 'hidden', border: '0.5px solid var(--color-border)' }}>
           <iframe src={url} width="100%" height="500" frameBorder="0" style={{ display: 'block' }}
