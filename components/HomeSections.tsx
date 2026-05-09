@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useState } from 'react'
 import CopyButton from './CopyButton'
 import type { NotionCard } from '@/lib/notion'
+import { isCopyCode, extractCode, isIgLimited, isComingSoon } from '@/lib/cta'
 
 type Filter = 'all' | 'trip' | 'tool' | 'template' | 'inspo'
 
@@ -13,13 +14,6 @@ const TYPE_SLUG: Record<string, string> = {
   '通用模板': 'template',
   '靈感收藏': 'inspo',
 }
-
-// CTA format helpers
-function isCopyCode(cta: string) { return /^複製[：:]/.test(cta) }
-function extractCode(cta: string) { return cta.replace(/^複製[：:]/, '') }
-function isExternalUrl(cta: string) { return cta.startsWith('http') }
-function isIgLimited(cta: string) { return cta.startsWith('ig:') }
-function isComingSoon(cta: string) { return cta === '佛系整理中' }
 
 function tripDateKey(name: string): number {
   let m = name.match(/^(\d{6})/)

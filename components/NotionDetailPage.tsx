@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import type { NotionCard, ExternalLink } from '@/lib/notion'
 import { getPageBlocks, getCardsByType, getInlineLinks } from '@/lib/notion'
+import { isCopyCode, extractCode, isExternalUrl } from '@/lib/cta'
 import DetailNav from './DetailNav'
 import BottomCta from './BottomCta'
 import CopyButton from './CopyButton'
@@ -14,10 +15,6 @@ interface Props {
   colorVar: string
   variant: 'trip' | 'tool' | 'template' | 'inspo'
 }
-
-function isCopyCode(cta: string) { return /^複製[：:]/.test(cta) }
-function extractCode(cta: string) { return cta.replace(/^複製[：:]/, '') }
-function isExternalUrl(cta: string) { return cta.startsWith('http') }
 
 const TYPE_SLUG: Record<string, string> = {
   '旅遊行程': 'trip', '好用工具': 'tool', '通用模板': 'template', '靈感收藏': 'inspo',
@@ -38,13 +35,12 @@ function sourceEmoji(source: string): string {
 }
 
 export default async function NotionDetailPage({ card, backHref, backLabel, colorVar, variant }: Props) {
-  const [rawBlocks, allSameType] = await Promise.all([
+  const [rawBlocks, sameTypeCards] = await Promise.all([
     getPageBlocks(card.id),
-    getCardsByType(card.type),
+    getCardsByType(card.type, card.id),
   ])
   const externalLinks = await getInlineLinks(rawBlocks)
   const { content, related } = splitBlocks(flattenBlocks(rawBlocks))
-  const sameTypeCards = allSameType.filter(c => c.id !== card.id).slice(0, 3)
   const typeSlug = TYPE_SLUG[card.type] ?? variant
 
   const igGated = card.tags.includes('IG 粉絲限定') || card.cta.startsWith('ig:')
@@ -195,7 +191,7 @@ export default async function NotionDetailPage({ card, backHref, backLabel, colo
             <div className="section-sep" />
             <div className="section-title">更多{card.type}</div>
             <div className="related-notion-cards">
-              {sameTypeCards.map(c => (
+              {sameTypeCards.slice(0, 3).map(c => (
                 <Link key={c.id} href={`/${typeSlug}/${c.id}`} className="related-notion-card">
                   <span className="related-notion-card-emoji">{c.icon || '✨'}</span>
                   <span className="related-notion-card-name">{c.name}</span>

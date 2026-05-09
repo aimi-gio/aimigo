@@ -95,13 +95,14 @@ export async function getAllCards(): Promise<NotionCard[]> {
   return (res.results as any[]).map(parseCard).filter(c => c.name)
 }
 
-export async function getCardsByType(type: CardType): Promise<NotionCard[]> {
+export async function getCardsByType(type: CardType, excludeId?: string): Promise<NotionCard[]> {
   const res = await notion.dataSources.query({
     data_source_id: DS_ID,
     filter: { property: '類型', select: { equals: type } },
-    page_size: 100,
+    page_size: 4,
   } as Parameters<typeof notion.dataSources.query>[0])
-  return (res.results as any[]).map(parseCard).filter(c => c.name)
+  const cards = (res.results as any[]).map(parseCard).filter(c => c.name)
+  return excludeId ? cards.filter(c => c.id !== excludeId) : cards
 }
 
 export async function getCardById(id: string): Promise<NotionCard | null> {
@@ -212,11 +213,18 @@ export async function getInlineLinks(blocks: any[]): Promise<ExternalLink[]> {
   }
   if (relationIds.length === 0) return []
 
-  // Fetch each linked external link page in parallel
+  // Fetch each linked external link page in parallel (with ISR cache)
   const links = await Promise.all(
     relationIds.map(async (id) => {
       try {
-        const page = await notion.pages.retrieve({ page_id: id }) as any
+        const resp = await fetch(`https://api.notion.com/v1/pages/${id}`, {
+          headers: {
+            Authorization: `Bearer ${process.env.NOTION_API_KEY}`,
+            'Notion-Version': '2022-06-28',
+          },
+          next: { revalidate: 3600 },
+        })
+        const page = await resp.json()
         const p = page.properties
         const files = p['縮圖']?.files ?? []
         return {
