@@ -3,7 +3,7 @@
 import { useState } from 'react'
 
 interface SmoothDetailsProps {
-  summary: string
+  summary: React.ReactNode
   children: React.ReactNode
   defaultOpen?: boolean
   className?: string

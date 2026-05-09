@@ -129,9 +129,8 @@ function Block({ block }: { block: any }) {
     }
 
     case 'toggle': {
-      const summary = plainText(block.toggle?.rich_text ?? [])
       return (
-        <SmoothDetails summary={summary} className="qa-item">
+        <SmoothDetails summary={renderRichText(block.toggle?.rich_text ?? [])} className="qa-item">
           <NotionBlocks blocks={block.children ?? []} />
         </SmoothDetails>
       )
@@ -260,6 +259,7 @@ export default function NotionBlocks({ blocks }: { blocks: any[] }) {
               {item.items.map((b: any, j: number) => (
                 <li key={j} style={{ fontSize: 14, color: 'var(--color-text-secondary)' }}>
                   {renderRichText(b[b.type]?.rich_text ?? [])}
+                  {b.children?.length > 0 && <NotionBlocks blocks={b.children} />}
                 </li>
               ))}
             </ul>
@@ -271,6 +271,7 @@ export default function NotionBlocks({ blocks }: { blocks: any[] }) {
               {item.items.map((b: any, j: number) => (
                 <li key={j} style={{ fontSize: 14, color: 'var(--color-text-secondary)' }}>
                   {renderRichText(b[b.type]?.rich_text ?? [])}
+                  {b.children?.length > 0 && <NotionBlocks blocks={b.children} />}
                 </li>
               ))}
             </ol>
