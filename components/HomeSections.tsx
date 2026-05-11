@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import CopyButton from './CopyButton'
 import type { NotionCard } from '@/lib/notion'
 import { isCopyCode, extractCode, isIgLimited, isComingSoon } from '@/lib/cta'
@@ -43,10 +43,24 @@ function CardImg({ cover, icon, bg, fallback }: { cover: string; icon: string; b
 
 const VALID_FILTERS: Filter[] = ['all', 'trip', 'tool', 'template', 'inspo']
 
+const SESSION_KEY = 'aimigo_lastTab'
+
 export default function HomeSections({ cards, initialTab }: { cards: NotionCard[]; initialTab?: string }) {
   const [active, setActive] = useState<Filter>(
     VALID_FILTERS.includes(initialTab as Filter) ? (initialTab as Filter) : 'all'
   )
+
+  // Restore from sessionStorage when no URL tab param (e.g. browser back button)
+  useEffect(() => {
+    if (initialTab) return
+    const saved = sessionStorage.getItem(SESSION_KEY) as Filter
+    if (saved && VALID_FILTERS.includes(saved)) setActive(saved)
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Persist active tab so back navigation can restore it
+  useEffect(() => {
+    sessionStorage.setItem(SESSION_KEY, active)
+  }, [active])
 
   const tripCards = cards
     .filter(c => c.type === '旅遊行程')
