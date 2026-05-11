@@ -11,7 +11,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const cards = await getAllCards()
 
   const cardRoutes: MetadataRoute.Sitemap = cards.map(card => ({
-    url: `${BASE}/${TYPE_SLUG[card.type]}/${card.id}`,
+    url: `${BASE}/${TYPE_SLUG[card.type]}/${card.slug || card.id}`,
     lastModified: new Date(),
     changeFrequency: 'weekly',
     priority: 0.8,

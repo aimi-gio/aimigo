@@ -1,7 +1,5 @@
-import { Client } from '@notionhq/client'
-
-const notion = new Client({ auth: process.env.NOTION_API_KEY })
 const DS_ID = process.env.NOTION_DS_ID ?? '22b18206525680d982e8000ba2c9e5af'
+const REVALIDATE = 3600
 
 export type CardType = '旅遊行程' | '好用工具' | '通用模板' | '靈感收藏'
 
@@ -32,6 +30,36 @@ export interface ExternalLink {
   tags: string[]
 }
 
+// ─── Fetch helpers ────────────────────────────────────────────────────────────
+
+function headers() {
+  return {
+    Authorization: `Bearer ${process.env.NOTION_API_KEY}`,
+    'Notion-Version': '2022-06-28',
+    'Content-Type': 'application/json',
+  }
+}
+
+async function nPost(path: string, body: object, revalidate = REVALIDATE): Promise<any> {
+  const res = await fetch(`https://api.notion.com/v1/${path}`, {
+    method: 'POST',
+    headers: headers(),
+    body: JSON.stringify(body),
+    next: { revalidate },
+  })
+  return res.json()
+}
+
+async function nGet(path: string, revalidate = REVALIDATE): Promise<any> {
+  const res = await fetch(`https://api.notion.com/v1/${path}`, {
+    headers: headers(),
+    next: { revalidate },
+  })
+  return res.json()
+}
+
+// ─── Parsers ──────────────────────────────────────────────────────────────────
+
 function richText(field: unknown): string {
   const f = field as any
   return f?.rich_text?.[0]?.plain_text?.trim() ?? ''
@@ -45,10 +73,8 @@ function parseFileUrl(f: any): string {
 }
 
 function parseCover(page: any): string {
-  // 優先：頁面頂部 cover
   const url = parseFileUrl(page.cover)
   if (url) return url
-  // Fallback：資料庫「封面」欄位（Files 屬性）
   const prop = page.properties?.['封面']
   if (prop?.type === 'files' && prop.files?.length > 0) {
     return parseFileUrl(prop.files[0])
@@ -56,7 +82,6 @@ function parseCover(page: any): string {
   return ''
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function parseCard(page: any): NotionCard {
   const p = page.properties
   return {
@@ -88,28 +113,29 @@ function toDashedId(id: string): string {
   return `${id.slice(0, 8)}-${id.slice(8, 12)}-${id.slice(12, 16)}-${id.slice(16, 20)}-${id.slice(20)}`
 }
 
+// ─── Card queries ─────────────────────────────────────────────────────────────
+
 export async function getAllCards(): Promise<NotionCard[]> {
-  const res = await notion.dataSources.query({
-    data_source_id: DS_ID,
+  const res = await nPost(`data_sources/${DS_ID}/query`, {
     filter: { property: '類型', select: { does_not_equal: 'Tag' } },
     page_size: 100,
-  } as Parameters<typeof notion.dataSources.query>[0])
-  return (res.results as any[]).map(parseCard).filter(c => c.name)
+  })
+  return ((res.results ?? []) as any[]).map(parseCard).filter(c => c.name)
 }
 
 export async function getCardsByType(type: CardType, excludeId?: string): Promise<NotionCard[]> {
-  const res = await notion.dataSources.query({
-    data_source_id: DS_ID,
+  const res = await nPost(`data_sources/${DS_ID}/query`, {
     filter: { property: '類型', select: { equals: type } },
     page_size: 4,
-  } as Parameters<typeof notion.dataSources.query>[0])
-  const cards = (res.results as any[]).map(parseCard).filter(c => c.name)
+  })
+  const cards = ((res.results ?? []) as any[]).map(parseCard).filter(c => c.name)
   return excludeId ? cards.filter(c => c.id !== excludeId) : cards
 }
 
 export async function getCardById(id: string): Promise<NotionCard | null> {
   try {
-    const page = await notion.pages.retrieve({ page_id: toDashedId(id) }) as any
+    const page = await nGet(`pages/${toDashedId(id)}`)
+    if (!page?.id) return null
     return parseCard(page)
   } catch {
     return null
@@ -123,24 +149,22 @@ function isNotionId(str: string): boolean {
 export async function resolveCard(slugOrId: string): Promise<NotionCard | null> {
   if (isNotionId(slugOrId)) return getCardById(slugOrId)
   try {
-    const res = await notion.dataSources.query({
-      data_source_id: DS_ID,
+    const res = await nPost(`data_sources/${DS_ID}/query`, {
       filter: { property: 'slug', rich_text: { equals: slugOrId } },
       page_size: 1,
-    } as Parameters<typeof notion.dataSources.query>[0])
-    const card = (res.results as any[]).map(parseCard).find(c => c.name)
+    })
+    const card = ((res.results ?? []) as any[]).map(parseCard).find((c: any) => c.name)
     if (card) return card
   } catch {}
   return getCardById(slugOrId)
 }
 
+// ─── Block fetching (recursive, each level cached independently) ───────────────
+
 export async function getPageBlocks(pageId: string): Promise<any[]> {
-  const res = await notion.blocks.children.list({
-    block_id: toDashedId(pageId),
-    page_size: 100,
-  })
+  const data = await nGet(`blocks/${toDashedId(pageId)}/children?page_size=100`)
   return Promise.all(
-    (res.results as any[]).map(async (block) => {
+    (data.results as any[]).map(async (block: any) => {
       if (block.has_children) {
         block.children = await getPageBlocks(block.id.replace(/-/g, ''))
       }
@@ -151,7 +175,7 @@ export async function getPageBlocks(pageId: string): Promise<any[]> {
 
 export async function getPagePhoto(pageId: string): Promise<string> {
   try {
-    const page = await notion.pages.retrieve({ page_id: toDashedId(pageId) }) as any
+    const page = await nGet(`pages/${toDashedId(pageId)}`)
     if (page.icon?.type === 'external') return page.icon.external?.url ?? ''
     if (page.icon?.type === 'file') return page.icon.file?.url ?? ''
     return parseCover(page)
@@ -160,27 +184,18 @@ export async function getPagePhoto(pageId: string): Promise<string> {
   }
 }
 
+// ─── About page ───────────────────────────────────────────────────────────────
+
 export interface AboutRecord {
-  item: string   // 項目（標題欄位）
-  desc: string   // 說明
-  note: string   // 補充（選填）
-  type: string   // 類型 select：簡介 | 數字 | 連結
+  item: string
+  desc: string
+  note: string
+  type: string
 }
 
 export async function getAboutRecords(): Promise<AboutRecord[]> {
   const dbId = toDashedId(process.env.NOTION_ABOUT_DB_ID ?? '358182065256808a8115d100847be973')
-
-  const resp = await fetch(`https://api.notion.com/v1/databases/${dbId}/query`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${process.env.NOTION_API_KEY}`,
-      'Notion-Version': '2022-06-28',
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ page_size: 100 }),
-    next: { revalidate: 3600 },
-  })
-  const res = await resp.json()
+  const res = await nPost(`databases/${dbId}/query`, { page_size: 100 })
 
   const txt = (field: any): string =>
     (field?.rich_text ?? []).map((r: any) => r.plain_text).join('').trim()
@@ -197,29 +212,18 @@ export async function getAboutRecords(): Promise<AboutRecord[]> {
     .filter(r => r.item)
 }
 
-export const revalidate = 3600
+export const revalidate = REVALIDATE
+
+// ─── Inline external links ────────────────────────────────────────────────────
 
 export async function getInlineLinks(blocks: any[]): Promise<ExternalLink[]> {
-  // Find child_database block named "link"
   const linkDb = blocks.find(
     b => b.type === 'child_database' && b.child_database?.title?.toLowerCase().trim() === 'link'
   )
   if (!linkDb) return []
 
-  // Query the inline database
-  const dbResp = await fetch(`https://api.notion.com/v1/databases/${linkDb.id}/query`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${process.env.NOTION_API_KEY}`,
-      'Notion-Version': '2022-06-28',
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ page_size: 20 }),
-    next: { revalidate: 3600 },
-  })
-  const dbData = await dbResp.json()
+  const dbData = await nPost(`databases/${linkDb.id}/query`, { page_size: 20 })
 
-  // Collect all relation IDs across all entries and relation properties
   const relationIds: string[] = []
   for (const page of dbData.results ?? []) {
     for (const val of Object.values(page.properties ?? {})) {
@@ -233,18 +237,10 @@ export async function getInlineLinks(blocks: any[]): Promise<ExternalLink[]> {
   }
   if (relationIds.length === 0) return []
 
-  // Fetch each linked external link page in parallel (with ISR cache)
   const links = await Promise.all(
     relationIds.map(async (id) => {
       try {
-        const resp = await fetch(`https://api.notion.com/v1/pages/${id}`, {
-          headers: {
-            Authorization: `Bearer ${process.env.NOTION_API_KEY}`,
-            'Notion-Version': '2022-06-28',
-          },
-          next: { revalidate: 3600 },
-        })
-        const page = await resp.json()
+        const page = await nGet(`pages/${id}`)
         const p = page.properties
         const files = p['縮圖']?.files ?? []
         return {
