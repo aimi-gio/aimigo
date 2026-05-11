@@ -26,7 +26,7 @@ function tripDateKey(name: string): number {
 }
 
 function internalHref(card: NotionCard) {
-  return `/${TYPE_SLUG[card.type]}/${card.id}`
+  return `/${TYPE_SLUG[card.type]}/${card.slug || card.id}`
 }
 
 // Cover image with emoji fallback

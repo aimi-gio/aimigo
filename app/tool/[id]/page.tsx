@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { tools } from '@/lib/data'
-import { getCardById } from '@/lib/notion'
+import { resolveCard } from '@/lib/notion'
 import NotionDetailPage from '@/components/NotionDetailPage'
 import DetailNav from '@/components/DetailNav'
 import RelatedCard from '@/components/RelatedCard'
@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
       twitter: { card: 'summary_large_image', images: [img] },
     }
   }
-  const card = await getCardById(id)
+  const card = await resolveCard(id)
   if (!card) return {}
   const img = `${BASE}/og?title=${encodeURIComponent(card.name)}&emoji=${encodeURIComponent(card.icon)}&type=tool`
   return {
@@ -109,7 +109,7 @@ export default async function ToolPage({ params }: { params: Promise<{ id: strin
 
   const tool = tools.find((t) => t.id === id && !t.inviteCode && t.ctaHref !== '#')
   if (!tool || !toolDetails[id]) {
-    const card = await getCardById(id)
+    const card = await resolveCard(id)
     if (!card || card.type !== '好用工具') notFound()
     return <NotionDetailPage card={card} backHref="/?tab=tool" backLabel="好用工具" colorVar="--color-tool" variant="tool" />
   }

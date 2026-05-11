@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { inspo } from '@/lib/data'
-import { getCardById } from '@/lib/notion'
+import { resolveCard } from '@/lib/notion'
 import NotionDetailPage from '@/components/NotionDetailPage'
 import DetailNav from '@/components/DetailNav'
 import RelatedCard from '@/components/RelatedCard'
@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
       twitter: { card: 'summary_large_image', images: [img] },
     }
   }
-  const card = await getCardById(id)
+  const card = await resolveCard(id)
   if (!card) return {}
   const img = `${BASE}/og?title=${encodeURIComponent(card.name)}&emoji=${encodeURIComponent(card.icon)}&type=inspo`
   return {
@@ -83,7 +83,7 @@ export default async function InspoPage({ params }: { params: Promise<{ id: stri
 
   const item = inspo.find((i) => i.id === id)
   if (!item) {
-    const card = await getCardById(id)
+    const card = await resolveCard(id)
     if (!card || card.type !== '靈感收藏') notFound()
     return <NotionDetailPage card={card} backHref="/?tab=inspo" backLabel="靈感收藏" colorVar="--color-inspo" variant="inspo" />
   }

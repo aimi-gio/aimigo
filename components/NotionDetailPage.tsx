@@ -192,7 +192,7 @@ export default async function NotionDetailPage({ card, backHref, backLabel, colo
             <div className="section-title">更多{card.type}</div>
             <div className="related-notion-cards">
               {sameTypeCards.slice(0, 3).map(c => (
-                <Link key={c.id} href={`/${typeSlug}/${c.id}`} className="related-notion-card">
+                <Link key={c.id} href={`/${typeSlug}/${c.slug || c.id}`} className="related-notion-card">
                   <span className="related-notion-card-emoji">{c.icon || '✨'}</span>
                   <span className="related-notion-card-name">{c.name}</span>
                 </Link>

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { templates } from '@/lib/data'
-import { getCardById } from '@/lib/notion'
+import { resolveCard } from '@/lib/notion'
 import NotionDetailPage from '@/components/NotionDetailPage'
 import DetailNav from '@/components/DetailNav'
 import RelatedCard from '@/components/RelatedCard'
@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
       twitter: { card: 'summary_large_image', images: [img] },
     }
   }
-  const card = await getCardById(id)
+  const card = await resolveCard(id)
   if (!card) return {}
   const img = `${BASE}/og?title=${encodeURIComponent(card.name)}&emoji=${encodeURIComponent(card.icon)}&type=template`
   return {
@@ -106,7 +106,7 @@ export default async function TemplatePage({ params }: { params: Promise<{ id: s
 
   const template = templates.find((t) => t.id === id)
   if (!template) {
-    const card = await getCardById(id)
+    const card = await resolveCard(id)
     if (!card || card.type !== '通用模板') notFound()
     return <NotionDetailPage card={card} backHref="/?tab=template" backLabel="通用模板" colorVar="--color-template" variant="template" />
   }

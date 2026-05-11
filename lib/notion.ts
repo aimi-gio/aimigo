@@ -7,6 +7,7 @@ export type CardType = '旅遊行程' | '好用工具' | '通用模板' | '靈�
 
 export interface NotionCard {
   id: string       // page ID without dashes
+  slug: string     // human-readable slug; empty string if not set
   icon: string
   cover: string    // cover image URL, empty string if none
   name: string
@@ -60,6 +61,7 @@ function parseCard(page: any): NotionCard {
   const p = page.properties
   return {
     id: page.id.replace(/-/g, ''),
+    slug: p['slug']?.rich_text?.[0]?.plain_text?.trim() ?? '',
     icon: page.icon?.emoji ?? '',
     cover: parseCover(page),
     name: p['名稱']?.title?.[0]?.plain_text?.trim() ?? '',
@@ -112,6 +114,24 @@ export async function getCardById(id: string): Promise<NotionCard | null> {
   } catch {
     return null
   }
+}
+
+function isNotionId(str: string): boolean {
+  return /^[0-9a-f]{32}$/.test(str)
+}
+
+export async function resolveCard(slugOrId: string): Promise<NotionCard | null> {
+  if (isNotionId(slugOrId)) return getCardById(slugOrId)
+  try {
+    const res = await notion.dataSources.query({
+      data_source_id: DS_ID,
+      filter: { property: 'slug', rich_text: { equals: slugOrId } },
+      page_size: 1,
+    } as Parameters<typeof notion.dataSources.query>[0])
+    const card = (res.results as any[]).map(parseCard).find(c => c.name)
+    if (card) return card
+  } catch {}
+  return getCardById(slugOrId)
 }
 
 export async function getPageBlocks(pageId: string): Promise<any[]> {

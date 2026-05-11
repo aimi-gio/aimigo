@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { trips } from '@/lib/data'
-import { getCardById } from '@/lib/notion'
+import { resolveCard } from '@/lib/notion'
 import NotionDetailPage from '@/components/NotionDetailPage'
 import DetailNav from '@/components/DetailNav'
 import SmoothDetails from '@/components/SmoothDetails'
@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
       twitter: { card: 'summary_large_image', images: [img] },
     }
   }
-  const card = await getCardById(id)
+  const card = await resolveCard(id)
   if (!card) return {}
   const img = `${BASE}/og?title=${encodeURIComponent(card.name)}&emoji=${encodeURIComponent(card.icon)}&type=trip`
   return {
@@ -171,7 +171,7 @@ export default async function TripPage({ params }: { params: Promise<{ id: strin
   // Static content takes priority for known IDs
   const trip = trips.find((t) => t.id === id && t.type !== 'placeholder')
   if (!trip) {
-    const card = await getCardById(id)
+    const card = await resolveCard(id)
     if (!card || card.type !== '旅遊行程') notFound()
     return <NotionDetailPage card={card} backHref="/?tab=trip" backLabel="旅遊行程" colorVar="--color-trip" variant="trip" />
   }
